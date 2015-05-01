@@ -17,6 +17,40 @@
 (define (semigroup->set semigroup)
   (magma->set semigroup))
 
+(define (add-all-new-pairs new-value elts remaining-elt-pairs)
+  (let ((new-value-before (map (lambda (x) (list new-value x)) elts))
+	(new-value-after (map (lambda (x) (list x new-value)) elts)))
+    (append (append new-value-before new-value-after) remaining-elt-pairs)))
+
+(define (all-pairs elts)
+  (cond ((= (length elts) 0) '())
+	(else
+	 (let* ((elt (car elts))
+		(rest (cdr elts))
+		(elt-before (map (lambda (x) (list elt x)) elts))
+		(elt-after (map (lambda (x) (list x elt)) elts)))
+	   (append (append elt-before elt-after) (all-pairs rest))))))
+
+(define (semigroup-from-generators generators operation)
+  (define (helper elts remaining-elt-pairs)
+    (let* ((new-pair (car remaining-elt-pairs))
+	   (new-value (apply operation new-pair)))
+      (if (memq new-value elts)
+	  ;; proceed with remaining-elt-pairs
+	  (if (= (length (cdr remaining-elt-pairs)) 0)
+	      ;; no more to iterate through
+	      elts
+	      (helper elts (cdr remaining-elt-pairs)))
+	  ;; add new element
+	  (helper (cons new-value elts)
+		  (add-all-new-pairs new-value
+				     elts
+				     remaining-elt-pairs)))))
+  (let ((all-elts (helper generators
+			  (all-pairs generators))))
+    (pp (list "debug: " all-elts))
+    (make-semigroup (apply make-set all-elts) operation)))
+
 
 ;;; ############################################################################
 ;;; Properties
@@ -27,7 +61,10 @@
   (magma/inverses-alist semigroup))
 (define (semigroup/invertible? semigroup)
   (magma/invertible? semigroup))
-
+(define (semigroup/order semigroup)
+  (set/cardinality (semigroup/underlying-set semigroup)))
+(define (semigroup/order-alist semigroup)
+  (magma/order-alist magma))
 
 ;;; ############################################################################
 ;;; Tests

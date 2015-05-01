@@ -37,6 +37,9 @@
 (define (group-like->set group-like)
   (group-like/underlying-set group-like))
 
+;;; Get order
+(define (group-like/order group-like)
+  (set/cardinality (group-like->set group-like)))
 
 ;;; ############################################################################
 ;;; Properties
@@ -113,6 +116,31 @@
 					 (equal? (operation y x) identity)))))
 	      (set->list set)))))
   (get-math-property group-like 'inverses-alist))
+
+;;; Compute order of each element
+(define (group-like/order-alist group-like)
+  (if (not (group-like? group-like))
+      (error "Not a group-like object:" group-like))
+  (if (not (group-like/identity group-like))
+      (error "Not implemented for group-like objects without identity element yet:" group-like))
+  ;;Find orders if not already computed
+  (if (not (has-math-property? group-like 'order-alist))
+      (let ((set (group-like/underlying-set group-like))
+	    (operation (group-like/operation group-like))
+	    (identity (group-like/identity group-like)))
+	(define (get-order elt elt-power i)
+	  (if (equal? elt-power identity)
+	      i
+	      (get-order elt
+			 (operation elt-power elt)
+			 (+ i 1))))
+	;;Set inverses-alist field to result
+	(set-math-property!
+	 group-like 'order-alist
+	 (map (lambda (x) (list x (get-order x x 1)))
+	      (set->list set)))))
+  (get-math-property group-like 'order-alist))
+  
 
 ;;; Test invertibility
 (define (group-like/invertible? group-like)

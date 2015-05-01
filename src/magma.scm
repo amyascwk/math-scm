@@ -16,6 +16,9 @@
   (group-like/operation magma))
 (define (magma->set magma)
   (group-like->set magma))
+(define (magma/order magma)
+  (set/cardinality (magma->set magma)))
+
 
 ;;; ############################################################################
 ;;; Properties
@@ -28,6 +31,8 @@
   (group-like/inverses-alist magma))
 (define (magma/invertible? magma)
   (group-like/invertible? magma))
+(define (magma/order-alist magma)
+  (group-like/order-alist magma))
 
 
 ;;; ############################################################################

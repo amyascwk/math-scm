@@ -50,6 +50,8 @@
 ;;; Convert to list
 (define set->list set/sorted-element-list)
 
+;;; Get cardinality
+(define (set/cardinality set) (length (set->list set)))
 
 ;;; ############################################################################
 ;;; Set construction

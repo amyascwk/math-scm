@@ -10,6 +10,12 @@
 	semigroup
 	(error "Identity of operation not in set:" operation set))))
 
+(define (monoid-from-generators generators operation)
+  (let ((semigroup (semigroup-from-generators generators operation)))
+    (if (semigroup/identity semigroup)
+	semigroup
+	(error "Identity of operation not in set:" operation set))))
+
 (define (monoid/underlying-set monoid)
   (semigroup/underlying-set monoid))
 (define (monoid/operation monoid)
@@ -27,6 +33,10 @@
   (semigroup/inverses-alist monoid))
 (define (monoid/invertible? monoid)
   (semigroup/invertible? monoid))
+(define (monoid/order monoid)
+  (set/cardinality (monoid/underlying-set monoid)))
+(define (monoid/order-alist monoid)
+  (semigroup/order-alist monoid))
 
 
 ;;; ############################################################################
