@@ -94,6 +94,13 @@
 				    (cdr new-remaining))))
 			(cdr remaining)))))))
 
+;; Set Cartesian Product
+(define (set/cart-pdt set1 set2)
+  (list->set (apply append
+		    (map (lambda (x)
+			   (map (lambda (y) (list x y))
+				       (set->list set2)))
+			 (set->list set1)))))
 
 ;;; ############################################################################
 ;;; Quantifiers
