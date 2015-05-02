@@ -78,6 +78,23 @@
 					    (operation x (operation y z)))))))))
   (get-math-property group-like 'associative-operation?))
 
+;;; Test commutativity of operation
+(define (group-like/commutative-operation? group-like)
+  (if (not (group-like? group-like))
+      (error "Not a group-like object:" group-like))
+  ;;Check if commutativity is satisfied if not already computed
+  (if (not (has-math-property? group-like 'commutative-operation?))
+      (let ((set (group-like/underlying-set group-like))
+	    (operation (group-like/operation group-like)))
+	;; Set commutativity property to result
+	(set-math-property!
+	 group-like 'commutative-operation?
+	 (for-all x set
+		  (for-all y set
+			   (equal? (operation x y)
+				   (operation y x)))))))
+  (get-math-property group-like 'commutative-operation?))
+
 ;;; Test existence of identity element
 (define (group-like/identity group-like)
   (if (not (group-like? group-like))
