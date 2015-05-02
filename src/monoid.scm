@@ -6,15 +6,22 @@
 ;;; Primitive constructor
 (define (make-monoid set operation)
   (let ((semigroup (make-semigroup set operation)))
-    (if (semigroup/identity semigroup)
-	semigroup
-	(error "Identity of operation not in set:" operation set))))
+    (monoid-check semigroup)))
 
 (define (monoid-from-generators generators operation)
   (let ((semigroup (semigroup-from-generators generators operation)))
-    (if (semigroup/identity semigroup)
-	semigroup
-	(error "Identity of operation not in set:" operation set))))
+    (monoid-check semigroup)))
+
+(define (monoid/cart-pdt monoid1 monoid2)
+  (let ((semigroup-pdt (semigroup/cart-pdt monoid1 monoid2)))
+    (monoid-check semigroup-pdt)))
+
+(define (monoid-check semigroup)
+  (if (semigroup/identity semigroup)
+      semigroup
+      (error "Identity of operation not in set:" operation set)))
+
+
 
 (define (monoid/underlying-set monoid)
   (semigroup/underlying-set monoid))
@@ -37,6 +44,8 @@
   (set/cardinality (monoid/underlying-set monoid)))
 (define (monoid/order-alist monoid)
   (semigroup/order-alist monoid))
+(define (monoid/elements monoid)
+  (set->list (monoid->set monoid)))
 
 
 ;;; ############################################################################
