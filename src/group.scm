@@ -80,9 +80,10 @@
 ;;; ############################################################################
 ;;; Code for finding isomorphisms
 
+(define (flatten inverse-order)
+  (apply append (map cadr inverse-order)))
+
 (define (get-mapped-elt e g1-inverse-order g2-inverse-order mapping)
-  (define (flatten inverse-order)
-    (apply append (map cadr inverse-order)))
   (list-ref (flatten g2-inverse-order)
 	    (list-ref mapping
 		      (list-index (lambda (x) (equal? x e))
@@ -108,7 +109,6 @@
 					       orders-remaining)))))
 		  (cdr orders-remaining))))
     (helper '() orders)))
-
 
 (define (group/isomorphic? g1 g2)
   (let* ((g1/order-alist (group/order-alist g1))
@@ -162,6 +162,7 @@
 					    (* (cadr x) (cadr y))))))
 	    (make-set '(1 1) '(1 -1) '(-1 1) '(-1 -1)))
 
+#|
 (group/isomorphic? (make-dihedral 3)
 		   (make-symmetric 3))
 "Isomorphism found!"
@@ -229,7 +230,7 @@
 (3 (1 2 3 0))
 (1 (3 0 1 2))
 ;Unspecified return value
-
+|#
 
 
 ;;; Beautiful, beautiful groups!

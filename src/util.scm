@@ -49,6 +49,10 @@
 (defhandler expr<? pair<?
   pair? pair?)
 
+(defhandler expr<? (lambda (x y)
+	(pair<? (vector->list x) (vector->list y)))
+  vector? vector?)
+
 ;;; Generic equality operator
 (define expr=?
   (make-generic-operator 2 'expr=? equal?))
@@ -125,7 +129,8 @@
 	       (iota (length p)))))
 
 (define (set-index! l idx val)
-  (set-car! (list-tail l idx) val))
+  (set-car! (list-tail l idx) val)
+  l)
 
 (define (permutations items)
   (define (remove ls elem)
