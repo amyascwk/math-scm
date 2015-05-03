@@ -13,6 +13,10 @@
       magma
       (error "Operation not associative:" operation)))
 
+(define (is-semigroup? obj)
+  (and (is-magma? obj)
+       (magma/associative-operation? obj)))
+
 (define (semigroup/cart-pdt semigroup1 semigroup2)
   (let ((magma-pdt (magma/cart-pdt semigroup1 semigroup2)))
     (semigroup-check magma-pdt)))

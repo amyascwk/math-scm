@@ -21,7 +21,9 @@
       semigroup
       (error "Identity of operation not in set:" operation set)))
 
-
+(define (is-monoid? obj)
+  (and (is-semigroup? obj)
+       (semigroup/identity obj)))
 
 (define (monoid/underlying-set monoid)
   (semigroup/underlying-set monoid))

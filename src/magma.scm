@@ -11,7 +11,11 @@
 (define (magma-check group-like)
   (if (group-like/closed-operation? group-like)
       group-like
-      (error "Operation not closed with respect to set:" operation set)))
+      (error "Operation not closed with respect to set:" operation
+	     set)))
+
+(define (is-magma? obj)
+  (group-like/closed-operation? obj))
 
 (define (magma/cart-pdt magma1 magma2)
   (let ((group-like-pdt (group-like/cart-pdt magma1 magma2)))

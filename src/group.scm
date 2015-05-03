@@ -21,6 +21,10 @@
 	monoid
 	(error "Not all inverses with respect to operation is in set:" operation set)))
 
+(define (is-group? obj)
+  (and (is-monoid? obj)
+       (monoid/invertible? obj)))
+
 (define (group/underlying-set group)
   (monoid/underlying-set group))
 (define (group/operation group)
@@ -42,6 +46,11 @@
   (monoid/order-alist group))
 (define (group/elements group)
   (set->list (group->set group)))
+(define (group/is-abelian? group)
+  (group-like/commutative-operation? group))
+(define (is-abelian-group? obj)
+  (and (is-group? obj)
+       (group/is-abelian? obj)))
 
 ;;; ############################################################################
 ;;; Special constructors
