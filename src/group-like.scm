@@ -41,6 +41,17 @@
 (define (group-like/order group-like)
   (set/cardinality (group-like->set group-like)))
 
+;;; Make Cartesian product
+(define (group-like/cart-pdt group-like1 group-like2)
+  (let* ((op1 (group-like/operation group-like1))
+	 (op2 (group-like/operation group-like2))
+	 (op-pdt (lambda (x1y1 x2y2)
+		   (list (op1 (first x1y1) (first x2y2))
+			 (op2 (second x1y1) (second x2y2))))))
+    (make-group-like (set/cart-pdt (group-like->set group-like1)
+				   (group-like->set group-like2))
+		     op-pdt)))
+
 ;;; ############################################################################
 ;;; Properties
 
@@ -77,6 +88,23 @@
 				    (equal? (operation (operation x y) z)
 					    (operation x (operation y z)))))))))
   (get-math-property group-like 'associative-operation?))
+
+;;; Test commutativity of operation
+(define (group-like/commutative-operation? group-like)
+  (if (not (group-like? group-like))
+      (error "Not a group-like object:" group-like))
+  ;;Check if commutativity is satisfied if not already computed
+  (if (not (has-math-property? group-like 'commutative-operation?))
+      (let ((set (group-like/underlying-set group-like))
+	    (operation (group-like/operation group-like)))
+	;; Set commutativity property to result
+	(set-math-property!
+	 group-like 'commutative-operation?
+	 (for-all x set
+		  (for-all y set
+			   (equal? (operation x y)
+				   (operation y x)))))))
+  (get-math-property group-like 'commutative-operation?))
 
 ;;; Test existence of identity element
 (define (group-like/identity group-like)
@@ -140,7 +168,24 @@
 	 (map (lambda (x) (list x (get-order x x 1)))
 	      (set->list set)))))
   (get-math-property group-like 'order-alist))
-  
+
+(define (invert-alist alist)
+  (let ((result (set->list
+		 (list->set
+		  (map (lambda (i) (list (cadr i) '()))
+		       alist)))))
+    (for-each (lambda (i)
+		(let ((entry (assq (cadr i) result)))
+		  (set-cdr! entry (list (cons (car i) (cadr entry))))))
+	      alist)
+    result))
+
+(define (alist-key-count alist)
+  (let ((inverted (invert-alist alist)))
+    (map (lambda (i) (list (car i) (length (cadr i))))
+	 inverted)))
+
+
 
 ;;; Test invertibility
 (define (group-like/invertible? group-like)
@@ -148,3 +193,5 @@
 	      (group-like/inverses-alist group-like))
        #t))
 
+(define (group-like/elements group-like)
+  (set->list (group-like->set group-like)))

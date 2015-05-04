@@ -6,9 +6,20 @@
 ;;; Primitive constructor
 (define (make-semigroup set operation)
   (let ((magma (make-magma set operation)))
-    (if (magma/associative-operation? magma)
-	magma
-	(error "Operation not associative:" operation))))
+    (semigroup-check magma)))
+
+(define (semigroup-check magma)
+  (if (magma/associative-operation? magma)
+      magma
+      (error "Operation not associative:" operation)))
+
+(define (is-semigroup? obj)
+  (and (is-magma? obj)
+       (magma/associative-operation? obj)))
+
+(define (semigroup/cart-pdt semigroup1 semigroup2)
+  (let ((magma-pdt (magma/cart-pdt semigroup1 semigroup2)))
+    (semigroup-check magma-pdt)))
 
 (define (semigroup/underlying-set semigroup)
   (magma/underlying-set semigroup))
@@ -35,7 +46,7 @@
   (define (helper elts remaining-elt-pairs)
     (let* ((new-pair (car remaining-elt-pairs))
 	   (new-value (apply operation new-pair)))
-      (if (memq new-value elts)
+      (if (member new-value elts)
 	  ;; proceed with remaining-elt-pairs
 	  (if (= (length (cdr remaining-elt-pairs)) 0)
 	      ;; no more to iterate through
@@ -64,7 +75,9 @@
 (define (semigroup/order semigroup)
   (set/cardinality (semigroup/underlying-set semigroup)))
 (define (semigroup/order-alist semigroup)
-  (magma/order-alist magma))
+  (magma/order-alist semigroup))
+(define (semigroup/elements semigroup)
+  (set->list (semigroup->set semigroup)))
 
 ;;; ############################################################################
 ;;; Tests
