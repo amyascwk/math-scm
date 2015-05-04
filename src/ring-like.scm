@@ -86,6 +86,10 @@
 (define (ring-like/abelian-additive-monoid? ring-like)
   (is-abelian-group? (ring-like/additive-monoid ring-like)))
 
+;;; Test if underlying multiplicative monoid is commutative
+(define (ring-like/commutative-multiplicative-monoid? ring-like)
+  (group-like/commutative-operation? (ring-like/multiplicative-monoid ring-like)))
+
 ;;; Test if multiplication is distributive with respect to addition
 (define (ring-like/distributive? ring-like)
   ;;Check if distributivity is satisfied if not already computed
@@ -109,15 +113,40 @@
 						  (multiply z x))))))))))
   (get-math-property ring-like 'distributive?))
 
+;;; Test if multiplication by 0 annihilates the ring-like
 (define (ring-like/annihilation-by-0 ring-like)
   (let ((set (ring-like/underlying-set ring-like))
 	(multiply (ring-like/multiplicative-operation ring-like))
-	(zero (ring-like/multiplicative-identity ring-like)))
+	(zero (ring-like/additive-identity ring-like)))
     (for-all x set
 	     (and (equal? (multiply zero x)
 			  (multiply x zero))
 		  (equal? (multiply x zero)
 			  zero)))))
+
+;;; Returns additive inverse of element
+(define (ring-like/get-additive-inverse ring-like element)
+  (let ((set (ring-like/underlying-set ring-like))
+	(add (ring-like/additive-operation ring-like))
+	(zero (ring-like/additive-identity ring-like)))
+    (let ((y (there-exists x set
+			   (and (equal? (add element x) zero)
+				(equal? (add x element) zero)))))
+      (if (not y)
+	  (error "Element has no additive inverse:" element)
+	  y))))
+
+;;; Returns multiplicative inverse of element
+(define (ring-like/get-multiplicative-inverse ring-like element)
+  (let ((set (ring-like/underlying-set ring-like))
+	(multiply (ring-like/multiplicative-operation ring-like))
+	(one (ring-like/multiplicative-identity ring-like)))
+    (let ((y (there-exists x set
+			   (and (equal? (multiply element x) one)
+				(equal? (multiply x element) one)))))
+      (if (not y)
+	  (error "Element has no multiplicative inverse:" element)
+	  y))))
 
 
 

@@ -35,6 +35,18 @@
 ;;; Groups
 (load "group.scm")
 
+;;; Ring-like
+(load "ring-like.scm")
+
+;;; Rings
+(load "ring.scm")
+
+;;; Semirings
+(load "semiring.scm")
+
+;;; Fields
+(load "field.scm")
+
 ;;; Generic arithmetic (for dealing with square roots)
 (load "arith/compatibility.scm")
 (load "arith/utils.scm")

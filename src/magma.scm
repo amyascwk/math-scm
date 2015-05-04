@@ -11,8 +11,7 @@
 (define (magma-check group-like)
   (if (group-like/closed-operation? group-like)
       group-like
-      (error "Operation not closed with respect to set:" operation
-	     set)))
+      (error "Operation not closed with respect to set:" group-like)))
 
 (define (is-magma? obj)
   (group-like/closed-operation? obj))
