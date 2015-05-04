@@ -47,6 +47,9 @@
 ;;; Fields
 (load "field.scm")
 
+;;; Graphs
+(load "graph.scm")
+
 ;;; Generic arithmetic (for dealing with square roots)
 (load "arith/compatibility.scm")
 (load "arith/utils.scm")
