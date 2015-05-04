@@ -1,10 +1,10 @@
 ;;;; Set definitions and syntax
 
-;;; ############################################################################
+;;; #############################################################################################
 ;;; Datatype methods
 
 ;;; Primitive constructor
-;;; Note: Set elements cannot be boolean!
+;;; Note: Set elements cannot be boolean! #f is used to indicate that
 (define (make-set . element-list)
   (let* ((sorted-list
 	  ;;Sort list to gather identical entries
