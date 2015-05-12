@@ -7,7 +7,7 @@
 
 ;;; Generic Math Object
 ;;; Basic record type that allows construction of a large variety of mathematical entities
-;;; Fields: "structure" is a symbol to be used in deciding how to interpret the data
+;;; Fields: "structure" is a symbol tag indicating how to interpret the data
 ;;;         "data" is an immutable alist of datum names and values, by which the identity of the
 ;;;         math object is defined
 ;;;         "properties" is an alist of property names and values, it is mutable to allow dynamic
@@ -87,29 +87,36 @@
 ;;; Comparator between math objects
 (defhandler expr<?
   (lambda (obj1 obj2)
-    ;;Sort data list by name, since expr<? selects the pair<? handler
-    ;;which prioritizes the earlier elements when sorting property pairs
+    ;;First compare structure type
     (let ((struct1 (math-object-structure obj1))
-	  (data1 (sort (math-object-data obj1) expr<?))
-	  (struct2 (math-object-structure obj2))
-	  (data2 (sort (math-object-data obj2) expr<?)))
-      ;;Now sort by values of corresponding data
+	  (struct2 (math-object-structure obj2)))
       (or (expr<? struct1 struct2)
-	  (and (expr=? type1 type2) (expr<? data1 data2))
+	  (and (expr=? struct1 struct2)
+	       ;;Sort data list by datum names, since expr<? selects the pair<? handler
+	       ;;which prioritizes the earlier elements when sorting pairs
+	       (let ((data1 (sort (math-object-data obj1) expr<?))
+		     (data2 (sort (math-object-data obj2) expr<?)))
+		 (expr<? data1 data2)))
 	  #f)))
   math-object? math-object?)
 
-;;; Equality comparator between math objects
-(defhandler expr=?
-  (lambda (obj1 obj2)
-    ;;Sort data list by name, since expr=? defaults to equal? which takes
-    ;;order of the datum pairs into account
-    (let ((struct1 (math-object-structure obj1))
-	  (data1 (sort (math-object-data obj1) expr<?))
-	  (struct2 (math-object-structure obj2))
-	  (data2 (sort (math-object-data obj2) expr<?)))
-      (and (expr=? struct1 struct2)
-	   (expr=? data1 data2)
-	   #t)))
-  math-object? math-object?)
+;;; Tests
+(let ((mo1 (make-math-object 'a '() '()))
+      (mo2 (make-math-object 'a '() '((p v))))
+      (mo3 (make-math-object 'a '((d v)) '()))
+      (mo4 (make-math-object 'b '() '())))
+  ;; Getters and setters
+  (test-equal (get-math-datum mo3 'd) 'v)
+  (test-equal (get-math-property mo2 'p) 'v)
+  (test-equal (get-math-property (set-math-property mo3 'p 'v) 'p) 'v)
+  (set-math-property! mo3 'pp 'vv)
+  (test-equal (get-math-property mo3 'pp) 'vv)
+  (test-true (has-math-datum? mo3 'd))
+  (test-true (has-math-property? mo2 'p))
+  ;; Comparator
+  (test-false (expr<? mo1 mo1))
+  (test-false (expr<? mo1 mo2))
+  (test-true (expr<? mo1 mo3))
+  (test-true (expr<? mo1 mo4)))
+
 

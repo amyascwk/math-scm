@@ -1,0 +1,106 @@
+\documentclass{article}
+
+%Packages
+\usepackage{amsmath,amssymb} %for math symbols
+
+%Margins
+\setlength{\oddsidemargin}{0cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0cm}
+\setlength{\headsep}{0cm}
+\addtolength{\textwidth}{4cm}
+\addtolength{\textheight}{3cm}
+
+%##############################################################################
+%##############################################################################
+\begin{document}
+    
+    \title{6.905 Final Project:\\Generic Abstract Mathematics}
+    \author{Amyas Chew \and Lynn Chua \and Yongquan Lu}
+    \maketitle
+    
+    %\tableofcontents
+    
+    %##########################################################################
+    \section{Introduction}
+        
+        - Motivation
+            - Role of computers in math
+                - Computer Algebra Systems (CAS) take some computation load off user
+                - Examples of proofs using computers: 4-color theorem, etc etc
+            - Significance of project
+                - Scheme allows emphasis on ideas rather than programming syntax
+                - Want a flexible system allowing users to make own constructs
+                - Free software and extensible so users can extend easily
+                    - can keep in pace with real world progress in math community
+        
+        - Potential use cases
+            - Convenience tool for keeping track of abstract mathematical data
+            - Simple scripting language for a CAS backend
+            - Possible basis for proof-assistants, proof-checkers, etc
+            - ??
+    
+    
+    %##########################################################################
+    \section{Overview}
+        
+        - Overall structure
+            - written using mit-scheme
+            - Different levels of implementation:
+                - Core
+                - Math implementation
+                - Extensions to base math
+    
+    
+    %##########################################################################
+    \section{Underlying structure}
+        
+        \subsection{Adapted infrastructure}
+            
+            - Generic operators
+            - Other tools (symbolic arithmetic, amb, etc)
+        
+        
+        \subsection{Math-object Datatype}
+            
+            - explanation of choice of structure
+    
+    
+    %##########################################################################
+    \section{Math Implementation}
+        
+        \subsection{Sets}
+            
+            - sets stuff
+        
+        
+        \subsection{Group-like objects}
+            
+            - group-like stuff
+        
+        
+        \subsection{Ring-like objects}
+            
+            - ring-like stuff
+        
+        
+        \subsection{Hypergraph-like}
+            
+            - hypergraph-like stuff
+    
+    
+    %##########################################################################
+    \section{Specific constructors}
+        
+        \subsection{Group constructors}
+            
+            - group constructors and methods
+    
+    
+    %##########################################################################
+    \section{Code}
+        
+        The latest version of the code can be obtained from \texttt{https://github.com/amyascwk/math-scm}.
+        
+    
+\end{document}
