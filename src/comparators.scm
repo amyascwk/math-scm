@@ -5,6 +5,10 @@
 ;;; #############################################################################################
 ;;; Specific comparators for scheme objects
 
+;;; Boolean comparison
+(define (boolean<? b1 b2)
+  (and b1 (not b2)))
+
 ;;; Pair comparison
 (define (pair<? p1 p2)
   (or (expr<? (car p1) (car p2))
@@ -61,7 +65,7 @@
 
 ;;; Ascending priority order of types
 (define type-priority-list
-  (list number? symbol? char? string? null? pair? vector?
+  (list boolean? number? symbol? char? string? null? pair? vector?
 	bit-string? 1d-table? hash-table? rb-tree? wt-tree?))
 
 
@@ -73,6 +77,9 @@
 ;;; Required as a comparator that ignores the property field in math-objects
 (define expr<?
   (make-generic-operator 2 'expr<? type<?))
+
+(defhandler expr<? boolean<?
+  boolean? boolean?)
 
 (defhandler expr<? <
   number? number?)

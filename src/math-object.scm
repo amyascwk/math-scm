@@ -100,7 +100,22 @@
 	  #f)))
   math-object? math-object?)
 
+
+;;; #############################################################################################
+;;; Other methods
+
+;;; List datum names of a math object
+(define (math-object/datum-names mathobj)
+  (map car (math-object-data mathobj)))
+
+;;; List property names of a math object
+(define (math-object/property-names mathobj)
+  (map car (math-object-properties mathobj)))
+
+
+;;; #############################################################################################
 ;;; Tests
+
 (let ((mo1 (make-math-object 'a '() '()))
       (mo2 (make-math-object 'a '() '((p v))))
       (mo3 (make-math-object 'a '((d v)) '()))
