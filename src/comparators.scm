@@ -7,7 +7,7 @@
 
 ;;; Boolean comparison
 (define (boolean<? b1 b2)
-  (and b1 (not b2)))
+  (and (not b1) b2))
 
 ;;; Pair comparison
 (define (pair<? p1 p2)
@@ -24,21 +24,21 @@
   (expr<? (bit-string->unsigned-integer bs1)
 	  (bit-string->unsigned-integer bs1)))
 
-;;; 1D tables comparison
+;;; 1D table comparison
 (define (1d-table<? t1 t2)
   (expr<? (1d-table/alist t1) (1d-table/alist t2)))
 
-;;; Hash tables comparison
+;;; Hash table comparison
 (define (hash-table<? ht1 ht2)
   (expr<? (hash-table->alist ht1) (hash-table->alist ht1)))
 
-;;; Red-black trees
+;;; Red-black tree comparison
 (load-option 'rb-tree)
 
 (define (rb-tree<? rb1 rb2)
   (expr<? (rb-tree->alist rb1) (rb-tree->alist rb1)))
 
-;;; Weight-balanced trees
+;;; Weight-balanced tree comparison
 (load-option 'wt-tree)
 
 (define (wt-tree->alist wt-tree)
@@ -48,6 +48,10 @@
 
 (define (wt-tree<? wt1 wt2)
   (expr<? (wt-tree->alist wt1) (wt-tree->alist wt2)))
+
+;;; Procedure comparison
+(define (procedure<? proc1 proc2)
+  (expr<? (hash proc1) (hash proc2)))
 
 ;;; Type order comparator
 ;;; Order according to position in type priority list
@@ -66,7 +70,7 @@
 ;;; Ascending priority order of types
 (define type-priority-list
   (list boolean? number? symbol? char? string? null? pair? vector?
-	bit-string? 1d-table? hash-table? rb-tree? wt-tree?))
+	bit-string? 1d-table? hash-table? rb-tree? wt-tree? procedure?))
 
 
 ;;; #############################################################################################
@@ -113,6 +117,9 @@
 
 (defhandler expr<? wt-tree<?
   wt-tree? wt-tree?)
+
+(defhandler expr<? procedure<?
+  procedure? procedure?)
 
 ;;; Generic equality operator
 (define (expr=? x y)

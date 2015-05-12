@@ -180,6 +180,7 @@
 
 ;;; ############################################################################
 ;;; Quantifiers
+;;; Currently implemented only for explicit sets
 
 ;;; Universal quantifier
 ;;; Syntax: (for-all element set . predicate-body)
@@ -256,9 +257,9 @@
 (defhandler set/splice
   (lambda (large-set predicate)
     (set-from-membership-predicate
-     (lambda (obj)
-       (and (set/member? obj large-set)
-	    (predicate obj)))))
+     `(lambda (obj)
+	(and (set/member? obj ,large-set)
+	     (,predicate obj)))))
   set? procedure?)
 
 (defhandler set/splice
@@ -277,9 +278,9 @@
 (defhandler set/union
   (lambda (set1 set2)
     (set-from-membership-predicate
-     (lambda (obj)
-       (or (set/member? obj set1)
-	   (set/member? obj set2)))))
+     `(lambda (obj)
+	(or (set/member? obj ,set1)
+	    (set/member? obj ,set2)))))
   set? set?)
 
 (defhandler set/union
@@ -295,9 +296,9 @@
 (defhandler set/intersection
   (lambda (set1 set2)
     (set-from-membership-predicate
-     (lambda (obj)
-       (and (set/member? obj set1)
-	    (set/member? obj set2)))))
+     `(lambda (obj)
+	(and (set/member? obj ,set1)
+	     (set/member? obj ,set2)))))
   set? set?)
 
 (defhandler set/intersection
@@ -326,9 +327,9 @@
 (defhandler set/difference
   (lambda (set1 set2)
     (set-from-membership-predicate
-     (lambda (obj)
-       (and (set/member? obj set1)
-	    (not (set/member? obj set2))))))
+     `(lambda (obj)
+	(and (set/member? obj ,set1)
+	     (not (set/member? obj ,set2))))))
   set? set?)
 
 (defhandler set/difference
@@ -344,8 +345,8 @@
 (defhandler set/power
   (lambda (set)
     (set-from-membership-predicate
-     (lambda (obj)
-       (set/subset? obj set))))
+     `(lambda (obj)
+	(set/subset? obj ,set))))
   set?)
 
 (defhandler set/power
@@ -373,11 +374,11 @@
 (defhandler set/cart-pdt
   (lambda (set1 set2)
     (set-from-membership-predicate
-     (lambda (obj)
-       (and (list? obj)
-	    (set/member? (car obj) set1)
-	    (set/member? (cadr obj) set2)
-	    (null? (cddr obj))))))
+     `(lambda (obj)
+	(and (list? obj)
+	     (set/member? (car obj) ,set1)
+	     (set/member? (cadr obj) ,set2)
+	     (null? (cddr obj))))))
   set? set?)
 
 (defhandler set/cart-pdt
@@ -390,7 +391,7 @@
   set/explicit? set/explicit?)
 
 
-;;; ############################################################################
+;;; #############################################################################################
 ;;; Tests
 
 ;;; set?
