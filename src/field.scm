@@ -62,6 +62,7 @@
 ;;; Tests
 
 (let ((f7 (make-prime-field 7)))
-  (test-equal (field/get-additive-inverse f7 3) 4))
+  (test-equal (field/get-additive-inverse f7 3) 4)
+  (test-equal (field/get-multiplicative-inverse f7 2) 4))
 
 
