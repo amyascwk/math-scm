@@ -98,6 +98,8 @@
   (magma/order-alist semigroup))
 (define (semigroup/elements semigroup)
   (magma/elements semigroup))
+(define (semigroup/abelian? semigroup)
+  (magma/abelian? semigroup))
 
 
 ;;; #############################################################################################

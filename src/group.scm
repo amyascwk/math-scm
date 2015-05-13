@@ -14,7 +14,7 @@
 	   (get-math-property obj 'group?)
 	   ;;property not set, so check its value and return it
 	   (let ((result (group-like/invertible? obj)))
-	     (set-math-property! group-like 'group? result)
+	     (set-math-property! obj 'group? result)
 	     result))))
 
 ;;; Throw an error if the monoid argument is not a group

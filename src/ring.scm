@@ -12,9 +12,18 @@
 
 (define (is-ring? obj)
   (and (ring-like? obj)
-       (ring-like/abelian-additive-monoid? obj)
-       (ring-like/multiplicative-monoid? obj)
-       (ring-like/distributive? obj)))
+       ;; check if ring? property is set
+       (if (has-math-property? obj 'ring?)
+	   ;; property set, return its value
+	   (get-math-property obj 'ring?)
+	   ;; property not set, check its value and return it
+	   (let ((result
+		  (and (ring-like/abelian-additive-monoid? obj)
+		       (ring-like/multiplicative-monoid? obj)
+		       (ring-like/distributive? obj))))
+	     (set-math-property! 
+	      obj 'ring? result)
+	     result))))
 
 (define (ring/underlying-set ring)
   (ring-like/underlying-set ring))
@@ -56,22 +65,38 @@
 
 ;;; Returns set of units in the ring
 (define (ring/get-units ring)
-  (let ((set (ring/underlying-set ring))
-	(multiply (ring/multiplicative-operation ring))
-	(one (ring/multiplicative-identity ring)))
-    (set/splice set
-		(lambda (x)
-		  (there-exists y set
-				(equal? (multiply x y)
-					one))))))
+  ;; check if 'units property has been set
+  (if (has-math-property? ring 'units)
+      ;; property set, return its value
+      (get-math-property ring 'units)
+      ;; property not set, check its value
+      (let ((set (ring/underlying-set ring))
+	    (multiply (ring/multiplicative-operation ring))
+	    (one (ring/multiplicative-identity ring)))
+	(let ((result
+	       (set/splice set
+			   (lambda (x)
+			     (there-exists y set
+					   (equal? (multiply x y)
+						   one))))))
+	  (set-math-property! ring 'units result)
+	  result))))
 
 ;;; Returns set of non-zero elements in the ring
 (define (ring/get-nonzero-elements ring)
-  (let ((set (ring/underlying-set ring))
-	(zero (ring/additive-identity ring)))
-    (set/splice set
-		(lambda (x)
-		  (not (equal? x zero))))))
+  ;; check if 'nonzero-elements property has been set
+  (if (has-math-property? ring 'nonzero-elements)
+      ;; property set, return its value
+      (get-math-property ring 'nonzero-elements)
+      ;; property not set, check its value
+      (let ((set (ring/underlying-set ring))
+	    (zero (ring/additive-identity ring)))
+	(let ((result
+	       (set/splice set
+			   (lambda (x)
+			     (not (equal? x zero))))))
+	  (set-math-property! ring 'nonzero-elements result)
+	  result))))
 
 ;;; Tests if an element is a unit
 (define (ring/is-unit? ring element)
@@ -84,39 +109,62 @@
 
 ;;; Returns set of idempotents in the ring
 (define (ring/get-idempotents ring)
-  (let ((set (ring/underlying-set ring))
-	(multiply (ring/multiplicative-operation ring)))
-    (set/splice set
-		(lambda (x)
-		  (equal? (multiply x x) x)))))
+  ;; check if property has been set
+  (if (has-math-property? ring 'idempotents)
+      ;; property set, return its value
+      (get-math-property ring 'idempotents)
+      ;; property not set, check its value
+      (let ((set (ring/underlying-set ring))
+	    (multiply (ring/multiplicative-operation ring)))
+	(let ((result
+	       (set/splice set
+			   (lambda (x)
+			     (equal? (multiply x x) x)))))
+	  (set-math-property ring 'idempotents result)
+	  result))))
 
 ;;; Returns set of left zero divisors in the ring
 (define (ring/get-left-zero-divisors ring)
-  (let ((set (ring/underlying-set ring))
-	(multiply (ring/multiplicative-operation ring))
-	(zero (ring/additive-identity ring)))
-    (set/splice set 
-		(lambda (x)
-		  (there-exists y set
-				(and (equal? (multiply x y)
-					     zero)
-				     (not (equal? y zero))))))))
+  ;; check if property has been set
+  (if (has-math-property? ring 'left-zero-divisors)
+      ;; property set, return its value
+      (get-math-property ring 'left-zero-divisors)
+      ;; property not set, check its value
+      (let ((set (ring/underlying-set ring))
+	    (multiply (ring/multiplicative-operation ring))
+	    (zero (ring/additive-identity ring)))
+	(let ((result
+	       (set/splice set 
+			   (lambda (x)
+			     (there-exists y set
+					   (and (equal? (multiply x y)
+							zero)
+						(not (equal? y zero))))))))
+	  (set-math-property ring 'left-zero-divisors result)
+	  result))))
 
 ;;; Returns set of right zero divisors in the ring
 (define (ring/get-right-zero-divisors ring)
-  (let ((set (ring/underlying-set ring))
-	(multiply (ring/multiplicative-operation ring))
-	(zero (ring/additive-identity ring)))
-    (set/splice set 
-		(lambda (x)
-		  (there-exists y set
-				(and (equal? (multiply y x)
-					     zero)
-				     (not (equal? y zero))))))))
-			   
-;;; ############################################################################
+  ;; check if property has been set
+  (if (has-math-property? ring 'right-zero-divisors)
+      ;; property set, return its value
+      (get-math-property ring 'right-zero-divisors)
+      ;; property not set, check its value
+      (let ((set (ring/underlying-set ring))
+	    (multiply (ring/multiplicative-operation ring))
+	    (zero (ring/additive-identity ring)))
+	(let ((result
+	       (set/splice set 
+			   (lambda (x)
+			     (there-exists y set
+					   (and (equal? (multiply y x)
+							zero)
+						(not (equal? y zero))))))))
+	  (set-math-property ring 'right-zero-divisors result)
+	  result))))	
+		   
+;;; ##########################################################################
 ;;; Tests
-
 (test-true (ring/is-zero-ring? (make-ring (make-set 0) + *)))
 
 (let ((ring-z4 (make-ring (make-set 0 1 2 3)
