@@ -131,12 +131,12 @@
 				  (flatten g1-inverse-order)))))
 
 (define (display-mapping mapping g1/inverse-order g2/inverse-order)
-  (for-each (lambda (g1-elt)
-	      (pp (list g1-elt (get-mapped-elt g1-elt
-					       g1/inverse-order
-					       g2/inverse-order
-					       mapping))))
-	    (flatten g1/inverse-order)))
+  (apply append (map (lambda (g1-elt)
+	      (list g1-elt (get-mapped-elt g1-elt
+					   g1/inverse-order
+					   g2/inverse-order
+					   mapping)))
+	    (flatten g1/inverse-order))))
 
 (define (permute-mapping order-count-alist)
   (let ((orders (map cadr order-count-alist)))
@@ -182,7 +182,6 @@
 					 g2/inverse-order
 					 mapping)))))
 		   (all-pairs (group/elements g1)))
-		  (pp "Isomorphism found!")
 		  (display-mapping mapping
 				   g1/inverse-order
 				   g2/inverse-order))))))

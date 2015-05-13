@@ -25,7 +25,7 @@
   (and (matrix? m)
        (vector-ref m 2)))
 
-(define (matrix-data m)
+(define (matrix-data m)l
   (and (matrix? m)
        (vector-ref m 3)))
 

@@ -65,7 +65,6 @@
 				     remaining-elt-pairs))))))
   (let ((all-elts (helper generators
 			  (all-pairs generators))))
-    (pp all-elts)
     (make-semigroup (apply make-set all-elts) operation)))
 
 (define (add-all-new-pairs new-value elts remaining-elt-pairs)

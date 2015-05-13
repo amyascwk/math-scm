@@ -2,12 +2,15 @@
 
 (define (make-matrix m)
   (if (not (matrix-data? m))
-      (error "Invalid argument."))
+      (error "Argument is not a valid matrix."))
   (vector 'matrix (length m) (length (list-ref m 0)) m))
 
 (define (matrix-data? m)
   (and (list? m)
-       (every list? m)))
+       (every list? m)
+       (let ((cols (length (car m))))
+	 (every (lambda (row) (= (length row) cols))
+		m))))
 ;; more checks can be done here
 
 (define (matrix? m)

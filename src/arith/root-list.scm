@@ -43,7 +43,7 @@
 						     reduced)))
 				<))
 	 (result (map (collect-coeffs reduced) radicands)))
-    result))
+    (filter non-zeros result)))
 
 
 (define (root-list? lst)
