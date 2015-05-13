@@ -10,10 +10,13 @@
   (if (set? vertex-set)
       (if (and (pair? edges)
 	       (every set? edges))
+	  ;; check if edges consist only of elements from vertex-set
 	  (if (graph/consistent-edges? vertex-set edges)
 	      (make-math-object
+	       'graph
 	       (list (list 'vertex-set vertex-set)
-		     (list 'edges edges)))
+		     (list 'edges edges))
+	       '())
 	      (error "Edges not consistent with vertex set"))
 	  (error "Edges are not valid:" edges))
       (error "Vertex set is not a set:" vertex-set)))
@@ -21,8 +24,7 @@
 ;;; Test if input is graph
 (define (graph? obj)
   (and (math-object? obj)
-       (has-math-property? obj 'vertex-set)
-       (has-math-property? obj 'edges)))
+       (eq? (math-object-structure obj) 'graph)))
 
 ;;; Make edges from lists of vertices
 (define (make-edges .  edges)
@@ -37,25 +39,40 @@
 ;;; Get vertex set
 (define (graph/vertex-set graph)
   (if (graph? graph)
-      (get-math-property graph 'vertex-set)
+      (get-math-datum graph 'vertex-set)
       (error "Not a graph:" graph)))
 
 ;;; Get edge list
 (define (graph/edges graph)
   (if (graph? graph)
-      (get-math-property graph 'edges)
+      (get-math-datum graph 'edges)
       (error "Not a graph:" graph)))
+
+      
+;;; ##########################################################################
+;;; Properties
 
 ;;; Get order, or number of vertices
 (define (graph/order graph)
-  (set/cardinality (graph/vertex-set graph)))
+  ;; Check if 'order property has been set
+  (if (has-math-property? graph 'order)
+      ;; property set, so return its value
+      (get-math-property graph 'order)
+      ;; property not set, so check its value and return it
+      (let ((order (set/cardinality (graph/vertex-set graph))))
+	(set-math-property! graph 'order order)
+	order)))
 
 ;;; Get size, or number of edges
 (define (graph/size graph)
-  (length (graph/edges graph)))
-
-;;; ##########################################################################
-;;; Properties
+  ;; Check if 'size property has been set
+  (if (has-math-property? graph 'size)
+      ;; property set, so return its value
+      (get-math-property graph 'size)
+      ;; property not set, so check its value and return it
+      (let ((size (length (graph/edges graph))))
+	(set-math-property! graph 'size size)
+	size)))
 
 ;;; Test if graph contains loops
 (define (graph/contains-loops? graph)
@@ -74,71 +91,110 @@
 
 ;;; Test if graph is simple
 (define (graph/simple? graph)
-  (and (not (graph/contains-multi-edges? graph))
-       (equal? (graph/uniform? graph) 2)))
+  ;; Check if 'simple? property has been set
+  (if (not (has-math-property? graph 'simple?))
+      ;; property not set, check value and set it
+      (set-math-property! 
+       graph 'simple?
+       (and (not (graph/contains-multi-edges? graph))
+	    (equal? (graph/uniform? graph) 2))))
+  (get-math-property graph 'simple?))
 
 ;;; If graph is k-uniform for some k, returns k, else returns #f
 (define (graph/uniform? graph)
-  (let ((edges (graph/edges graph)))
-    (let ((size-edges (map set/cardinality edges)))
-      (if (equal? (set/cardinality (list->set size-edges)) 1)
-	  (car size-edges)
-	  #f))))
+  ;; Check if 'uniform? property has been set
+  (if (not (has-math-property? graph 'uniform?))
+      ;; property not set, check value and return it
+      (set-math-property!
+       graph 'uniform?
+       (let ((edges (graph/edges graph)))
+	 (let ((size-edges (map set/cardinality edges)))
+	   ;; check if all edges have same size
+	   (if (equal? (set/cardinality (list->set size-edges)) 1)
+	       (car size-edges)
+	       #f)))))
+  (get-math-property graph 'uniform?))
 
 ;;; Compute degree of a vertex
 (define (graph/get-vertex-degree graph vertex)
   (let ((edges (graph/edges graph))
 	(count 0))
     (for-each (lambda (x)
-		(set! count
-		      (+ count 
-			 (length (filter (lambda (y)
-					   (equal? vertex y))
-					 (set->list x))))))
+		;; check if vertex is in edge
+		(if (set/member? vertex x)
+		    ;; increment count for each edge that contains vertex
+		    (set! count (+ count 1))))
 	      edges)
     count))
 
 ;;; Compute maximum degree in the graph
 (define (graph/get-max-degree graph)
-  (let ((vertex-set (graph/vertex-set graph))
-	(max-degree 0))
-    (for-each (lambda (x)
-		(let ((degree (graph/get-vertex-degree graph x)))
-		  (if (> degree max-degree)
-		      (set! max-degree degree))))
-	      (set->list vertex-set))
-    max-degree))
+  ;; Check if 'max-degree property has been set
+  (if (not (has-math-property? graph 'max-degree))
+      ;; property not set, check value and return it
+      (set-math-property!
+       graph 'max-degree
+       (let ((vertex-set (graph/vertex-set graph))
+	     (max-degree 0))
+	 (for-each (lambda (x)
+		     (let ((degree (graph/get-vertex-degree graph x)))
+		       (if (> degree max-degree)
+			   (set! max-degree degree))))
+		   (set->list vertex-set))
+	 max-degree)))
+  (get-math-property graph 'max-degree))
 
 ;;; Compute minimum degree in the graph
 (define (graph/get-min-degree graph)
-  (let ((vertex-set (graph/vertex-set graph))
-	(min-degree (* 2 (graph/size graph))))
-    (for-each (lambda (x)
-		(let ((degree (graph/get-vertex-degree graph x)))
-		  (if (< degree min-degree)
-		      (set! min-degree degree))))
-	      (set->list vertex-set))
-    min-degree))
+  ;; Check if 'min-degree property has been set
+  (if (not (has-math-property? graph 'min-degree))
+      ;; property not set, check value and return it
+      (set-math-property!
+       graph 'min-degree  
+       (let ((vertex-set (graph/vertex-set graph))
+	     (min-degree (* 2 (graph/size graph))))
+	 (for-each (lambda (x)
+		     (let ((degree (graph/get-vertex-degree graph x)))
+		       (if (< degree min-degree)
+			   (set! min-degree degree))))
+		   (set->list vertex-set))
+	 min-degree)))
+  (get-math-property graph 'min-degree))
 
 ;;; Returns degree of vertices if graph is regular, and #f otherwise
 (define (graph/regular? graph)
-  (let ((degree (graph/get-max-degree graph)))
-    (if (equal? degree
-		(graph/get-min-degree graph))
-	degree
-	#f)))
+  ;; Check if 'regular property has been set
+  (if (not (has-math-property? graph 'regular))
+      ;; property not set, check value and return it
+      (set-math-property!
+       graph 'regular
+       (let ((degree (graph/get-max-degree graph)))
+	 (if (equal? degree
+		     (graph/get-min-degree graph))
+	     degree
+	     #f))))
+  (get-math-property graph 'regular))
 
 ;;; Test if graph is complete
 (define (graph/complete? graph)
-  (and (graph/simple? graph)
-       (equal? (graph/regular? graph)
-	       (- (graph/order graph) 1))))
+  ;; Check if 'complete property has been set
+  (if (not (has-math-property? graph 'complete))
+      ;; property not set, check value and return it
+      (set-math-property!
+       graph 'complete
+       (and (graph/simple? graph)
+	    (equal? (graph/regular? graph)
+		    (- (graph/order graph) 1)))))
+  (get-math-property graph 'complete))
 
 ;;; ##########################################################################
 ;;; Tests
 
 (let ((triangle (make-graph (make-set 0 1 2)
 			    (make-edges '(0 1) '(0 2) '(1 2)))))
+  (test-equal (graph/order triangle) 3)
+  (test-equal (graph/size triangle) 3)
+  (test-equal (graph/uniform? triangle) 2)
   (test-true (graph/simple? triangle))
   (test-true (graph/regular? triangle))
   (test-true (graph/complete? triangle)))
