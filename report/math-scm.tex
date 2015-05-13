@@ -93,7 +93,9 @@
 				
 				Addition, subtraction and multiplication are implemented generically, so that elements can be in any domain ($\mathbb{Z}_p$, for example).
 
+\begin{minipage}[t]{0.6\textwidth}
 \begin{verbatim}
+
 (define a (make-matrix '((1 2) (5 6))))
 (define b (make-matrix '((4 1) (2 2))))
 (define c (make-matrix '((1 5 2) (3 3 4))))
@@ -113,22 +115,63 @@
 (* c a)
 ;Not matrices of compatible dimensions
 \end{verbatim}
+\end{minipage}
+\begin{minipage}[t]{0.4\textwidth}
+$\\ \\ \\ \\ \\ 
+\begin{pmatrix}
+1&2\\ 5&6
+\end{pmatrix} + 
+\begin{pmatrix}
+4&1\\ 2&2
+\end{pmatrix} = 
+\begin{pmatrix}
+5&3\\ 7&8
+\end{pmatrix} \\ \\ \\ \\ \\ \\ 
+\begin{pmatrix}
+1&2\\ 5&6
+\end{pmatrix} \cdot 
+\begin{pmatrix}
+4&1\\ 2&2
+\end{pmatrix} = 
+\begin{pmatrix}
+8&5\\ 32&17
+\end{pmatrix} \\ \\ \\
+\begin{pmatrix}
+1&2\\ 5&6
+\end{pmatrix} \cdot
+\begin{pmatrix}
+1&5&2\\ 3&3&4
+\end{pmatrix} = 
+\begin{pmatrix}
+7&11&10\\ 23&43&34
+\end{pmatrix}$
+ 
+\end{minipage}
             
             \subsubsection{Radicals}
             
             	We would like to perform exact computation with radicals, for example, in order to construct groups as matrices over radicals. Existing procedures within Scheme like \texttt{sqrt} and \texttt{expt} are inexact, so we built a simple framework that allows linear combinations of integer square roots to be represented as a coefficient list, which we call a \emph{root list}. Each list is a list of cons pairs \texttt{(a . b)} representing $a \sqrt{b}$. For example, \texttt{((5 . 1) (-1 . 2) (4 . 5))} represents the sum $5 - 1\sqrt{2} + 4\sqrt{5}$. A \texttt{simplify} procedure extracts square factors out of each term and then collects and sorts like terms.
 	
+\begin{minipage}[t]{0.5\textwidth}
 \begin{verbatim}
+
 (simplify '((2 .  49/12)))
 ;Value: ((7 . 1/3))
 
-(simplify '((1 . 3) (2 . 4) (1 . 18) (3. 4)))
-;Value: ((10 . 1) (3 . 2) (1 . 3))
-\end{verbatim}
-	
-				Using generic arithmetic, we are also able to support addition, subtraction and multiplication over root lists. Addition and subtraction are performed component wise, while multiplication is implemented by distributing over both root lists, collecting like terms and simplifying. Division is implemented by incrementally rationalizing the denominator.
+(simplify '((2 . 4) (1 . 18) (3. 12)))
+;Value: ((4 . 1) (3 . 2) (6 . 3))
 
+\end{verbatim}
+\end{minipage}
+\begin{minipage}[t]{0.5\textwidth}
+$\\ 2\sqrt{\frac{49}{12}} = 7\sqrt{\frac{1}{3}}$\\ \\ \\
+$2\sqrt{4} + \sqrt{18} + 3\sqrt{12} = 4 + 3\sqrt{2} + 6\sqrt{3}$
+\end{minipage}	
+				Using generic arithmetic, we are also able to support addition, subtraction and multiplication over root lists. Addition and subtraction are performed component wise, while multiplication is implemented by distributing over both root lists, collecting like terms and simplifying. Division is implemented by incrementally rationalizing the denominator.
+				
+ \begin{minipage}[t]{0.5\textwidth}
 \begin{verbatim}
+
 (+ '((1 . 3) (2 . 9))
    '((1 . 5) (7 . 12)))
 ;Value: ((6 . 1) (15 . 3) (1 . 5))
@@ -140,7 +183,15 @@
 (/ '((1 . 2) (1 . 3))
    '((2 . 1) (1 . 2) (-1 . 3)))
 ;Value: ((1/23 . 1) (14/23 . 2) (10/23 . 3) (2/23 . 6))
+
 \end{verbatim}
+\end{minipage}
+\begin{minipage}[t]{0.5\textwidth}
+$\\(\sqrt{5}+2\sqrt{9})+(\sqrt{5} + 7\sqrt{12}) = 6 + 15 \sqrt{3} + \sqrt{5}$\\ \\ \\ \\
+$(\sqrt{2} + \sqrt{3}) \cdot (1 + 2\sqrt{3}) = 6 + \sqrt{2} + \sqrt{3} + 2\sqrt{6}$ \\ \\ \\ \\
+$\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{23}\sqrt{2} + \frac{10}{23} \sqrt{3} + \frac{2}{23} \sqrt{6}$\\
+\end{minipage}
+
                 
                 This system currently works well for square roots, but we can conceive of a system where each tagged list has another parameter to support $n^{th}$ roots as well. A simple extension to \texttt{simplify} can use $8 = 2^3$ to reduce $\sqrt[3]{56}$ to $2\sqrt[3]{7}$. We chose, however, not to implement such an abstraction as no straightforward analogue to rationalizing the denominator for division exists.
                                           
@@ -216,12 +267,31 @@
 		
 		         EXAMPLES HERE
     
+    	\subsection{Cartesian products}
+	
+		We implemented \texttt{group/cart-pdt} to take the Cartesian product of two groups; this follows naturally from taking the Cartesian product of the sets and their operations.
+		
+		EXAMPLE HERE
+    
     	\subsection{Constructing isomorphisms}
 	
-		We can say that two finite groups $G_1$ and $G_2$ 
+		We can say that two finite groups $G_1$ and $G_2$ are isomorphic iff there exists a bijection $\psi$ between them that preserves the group operation, i.e. $\forall g, g' \in G_1$ $\psi(g)\psi(g') = \psi(gg')$. We construct the procedure \texttt{group/isomorphic?} that takes in two groups and constructs an isomorphism between them if possible, and returning false if not.
 		
-		need to finish
-    
+		A naive algorithm would check all $n!$ possible bijections, but our implementation does better by taking into account additional structure within the group. A utility procedure, $\texttt{group/order-alist}$ computes the order of each element (the minimum power needed to raise the element to to get back the identity). $\texttt{invert-alist}$ flips around the keys and values of the alist and \texttt{alist-key-count} collects the number of elements with a particular order, which we can treat as a kind of signature.
+		
+		EXAMPLES HERE
+		
+		For instance, in this case we know that $C_{10}$ and $D_5$ are not isomorphic because they have different number of elements of a given order.
+
+		EXAMPLES HERE
+		
+		On the other hand, $C_{10}$ and $C_2 \times C_5$ look like they could be isomorphic, and \texttt{group/isomorphic?} exhibits an explicit correspondence.
+
+		EXAMPLES HERE
+		
+		We implement \texttt{group/isomorphic?} behind the scenes with amb and require's. For performance, amb is constrained to only generate mappings that map elements of the same order to each other (cutting down the search from $10! = 3628800$ to a much more reasonable $1! \cdot 4! \cdot 1! \cdot 4! = 576$ possibilities). Each mapping is then tested for validity over all pairs of elements; if it fails, backtracking happens automatically behind the scenes.
+		
+		This scheme can easily be extended to enumerate all isomorphisms / automorphisms by triggering a backtrack even when a successful candidate is found, and perhaps to find surjective / injective homomorphisms between a group and a subgroup of another group.    
     %##########################################################################
     \section{Code}
         
