@@ -12,7 +12,16 @@
 
 (define (is-semiring? obj)
   (and (ring-like? obj)
-       (ring-like/commutative-additive-monoid? obj)
-       (ring-like/multiplicative-monoid? obj)
-       (ring-like/distributive? obj)
-       (ring-like/annihilation-by-0 obj)))
+       ;; check if semiring? property is set
+       (if (has-math-property? obj 'semiring?)
+	   ;; property set, return its value
+	   (get-math-property obj 'semiring?)
+	   ;; property not set, check its value and return it
+	   (let ((result
+		  (and (ring-like/commutative-additive-monoid? obj)
+		       (ring-like/multiplicative-monoid? obj)
+		       (ring-like/distributive? obj)
+		       (ring-like/annihilation-by-0 obj))))
+	     (set-math-property! 
+	      obj 'semiring? result)
+	     result))))

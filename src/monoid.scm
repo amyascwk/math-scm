@@ -15,7 +15,7 @@
 	   ;;property not set, so check its value and return it
 	   (let ((result (and (group-like/identity obj)
 			      #t)))
-	     (set-math-property! group-like 'monoid? result)
+	     (set-math-property! obj 'monoid? result)
 	     result))))
 
 ;;; Throw an error if the semigroup argument is not a monoid
@@ -70,6 +70,8 @@
   (semigroup/order-alist monoid))
 (define (monoid/elements monoid)
   (semigroup/elements monoid))
+(define (monoid/abelian? monoid)
+  (semigroup/abelian? monoid))
 
 
 ;;; #############################################################################################

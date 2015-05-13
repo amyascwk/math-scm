@@ -66,6 +66,8 @@
   (group-like/order magma))
 (define (magma/elements magma)
   (group-like/elements magma))
+(define (magma/abelian? magma)
+  (group-like/abelian? magma))
 
 
 ;;; #############################################################################################

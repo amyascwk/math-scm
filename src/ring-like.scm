@@ -1,7 +1,7 @@
 ;;;; Definitions and syntax of structures built from a set, an
 ;;;; additive operation and a multiplicative operation.
 
-;;; ###########################################################################
+;;; ##########################################################################
 ;;; Datatype methods
 
 ;;; Primitive constructor
@@ -9,86 +9,174 @@
 (define (make-ring-like set additive-operation multiplicative-operation)
   (if (set? set)
       (make-math-object
+       'ring-like
        (list (list 'underlying-set set)
 	     (list 'additive-operation additive-operation)
-	     (list 'multiplicative-operation multiplicative-operation)))
+	     (list 'multiplicative-operation multiplicative-operation))
+       '())
       (error "Not a set:" set)))
 
 ;;; Test ring-like
 (define (ring-like? obj)
   (and (math-object? obj)
-       (has-math-property? obj 'underlying-set)
-       (has-math-property? obj 'additive-operation)
-       (has-math-property? obj 'multiplicative-operation)))
+       (eq? (math-object-structure obj) 'ring-like)))
 
 ;;; Get underlying set
 (define (ring-like/underlying-set ring-like)
   (if (ring-like? ring-like)
-      (get-math-property ring-like 'underlying-set)
+      (get-math-datum ring-like 'underlying-set)
       (error "Not a ring-like object:" ring-like)))
 
 ;;; Get additive operation
 (define (ring-like/additive-operation ring-like)
   (if (ring-like? ring-like)
-      (get-math-property ring-like 'additive-operation)
+      (get-math-datum ring-like 'additive-operation)
       (error "Not a ring-like object:" ring-like)))
 
 ;;; Get multiplicative operation
 (define (ring-like/multiplicative-operation ring-like)
   (if (ring-like? ring-like)
-      (get-math-property ring-like 'multiplicative-operation)
+      (get-math-datum ring-like 'multiplicative-operation)
       (error "Not a ring-like object:" ring-like)))
 
 ;;; Convert to set
 (define (ring-like->set ring-like)
   (ring-like/underlying-set ring-like))
 
+;;; ##########################################################################
+;;; Properties
+
 ;;; Get order
 (define (ring-like/size ring-like)
-  (set/cardinality (ring-like->set ring-like)))
+  ;; Check for size if already computed
+  (if (has-math-property? ring-like 'size)
+      ;; property set, return value
+      (get-math-property ring-like 'size)
+      ;; property not set, check value and return it
+      (let ((size (set/cardinality (ring-like/underlying-set ring-like))))
+	(set-math-property! ring-like 'size size)
+	size)))
 
 ;;; Get underlying monoid from set and additive operation
 (define (ring-like/additive-monoid ring-like)
-  (make-monoid 
-   (ring-like/underlying-set ring-like)
-   (ring-like/additive-operation ring-like)))
+  ;; Check for monoid if already computed
+  (if (has-math-property? ring-like 'additive-monoid)
+      ;; property set, return value
+      (get-math-property ring-like 'additive-monoid)
+      ;; property not set, check value and return it
+      (let ((monoid (make-monoid 
+		     (ring-like/underlying-set ring-like)
+		     (ring-like/additive-operation ring-like))))
+	(set-math-property! 
+	 ring-like 'additive-monoid monoid)
+	monoid)))
 
 ;;; Get underlying monoid from set and multiplicative operation
 (define (ring-like/multiplicative-monoid ring-like)
-  (make-monoid 
-   (ring-like/underlying-set ring-like)
-   (ring-like/multiplicative-operation ring-like)))
+  ;; Check for monoid if already computed
+  (if (has-math-property? ring-like 'multiplicative-monoid)
+      ;; property set, return value
+      (get-math-property ring-like 'multiplicative-monoid)
+      ;; property not set, check value and return it
+      (let ((monoid (make-monoid 
+		     (ring-like/underlying-set ring-like)
+		     (ring-like/multiplicative-operation ring-like))))
+	(set-math-property!
+	 ring-like 'multiplicative-monoid monoid)
+	monoid)))
    
 ;;; Get additive identity
 (define (ring-like/additive-identity ring-like)
-  (monoid/identity (ring-like/additive-monoid ring-like)))
+  ;; Check for identity if already computed
+  (if (has-math-property? ring-like 'additive-identity)
+      ;; property set, return value
+      (get-math-property ring-like 'additive-identity)
+      ;; property not set, check value and return it
+      (let ((identity (monoid/identity 
+		       (ring-like/additive-monoid ring-like))))
+	(set-math-property!
+	 ring-like 'additive-identity identity)
+	identity)))
 
 ;;; Get multiplicative identity
 (define (ring-like/multiplicative-identity ring-like)
-  (monoid/identity (ring-like/multiplicative-monoid ring-like)))
-
-;;; ############################################################################
-;;; Properties
+  ;; Check for identity if already computed
+  (if (has-math-property? ring-like 'multiplicative-identity)
+      ;; property set, return value
+      (get-math-property ring-like 'multiplicative-identity)
+      ;; property not set, check value and return it
+      (let ((identity (monoid/identity 
+		       (ring-like/multiplicative-monoid ring-like))))
+	(set-math-property!
+	 ring-like 'multiplicative-identity identity)
+	identity)))
 
 ;;; Test if underlying set and additive operation form monoid
 (define (ring-like/additive-monoid? ring-like)
-  (monoid? (ring-like/additive-monoid ring-like)))
+  ;; Check for property if already computed
+  (if (has-math-property? ring-like 'additive-monoid?)
+      ;; property set, return value
+      (get-math-property ring-like 'additive-monoid?)
+      ;; property not set, check value and return it
+      (let ((result
+	     (monoid? (ring-like/additive-monoid ring-like))))
+	(set-math-property!
+	 ring-like 'additive-monoid? result)
+	result)))
 
 ;;; Test if underlying set and multiplicative operation form monoid
 (define (ring-like/multiplicative-monoid? ring-like)
-  (monoid? (ring-like/multiplicative-monoid ring-like)))
+  ;; Check for property if already computed
+  (if (has-math-property? ring-like 'multiplicative-monoid?)
+      ;; property set, return value
+      (get-math-property ring-like 'multiplicative-monoid?)
+      ;; property not set, check value and return it
+      (let ((result
+	     (monoid? (ring-like/multiplicative-monoid ring-like))))
+	(set-math-property!
+	 ring-like 'multiplicative-monoid? result)
+	result)))
 
 ;;; Test if underlying additive monoid is commutative
 (define (ring-like/commutative-additive-monoid? ring-like)
-  (group-like/commutative-operation? (ring-like/additive-monoid ring-like)))
+  ;; Check for property if already computed
+  (if (has-math-property? ring-like 'commutative-additive-monoid?)
+      ;; property set, return value
+      (get-math-property ring-like 'commutative-additive-monoid?)
+      ;; property not set, check value and return it
+      (let ((result
+	     (group-like/commutative-operation? 
+	      (ring-like/additive-monoid ring-like))))
+	(set-math-property!
+	 ring-like 'commutative-additive-monoid? result)
+	result)))
 
 ;;; Test if underlying additive monoid is an abelian group
 (define (ring-like/abelian-additive-monoid? ring-like)
-  (abelian-group? (ring-like/additive-monoid ring-like)))
+  ;; Check for property if already computed
+  (if (has-math-property? ring-like 'abelian-additive-monoid?)
+      ;; property set, return value
+      (get-math-property ring-like 'abelian-additive-monoid?)
+      ;; property not set, check value and return it
+      (let ((result
+	     (abelian-group? (ring-like/additive-monoid ring-like))))
+	(set-math-property!
+	 ring-like 'abelian-additive-monoid? result)
+	result)))
 
 ;;; Test if underlying multiplicative monoid is commutative
 (define (ring-like/commutative-multiplicative-monoid? ring-like)
-  (group-like/commutative-operation? (ring-like/multiplicative-monoid ring-like)))
+  ;; Check for property if already computed
+  (if (has-math-property? ring-like 'commutative-multiplicative-monoid?)
+      ;; property set, return value
+      (get-math-property ring-like 'commutative-multiplicative-monoid?)
+      ;; property not set, check value and return it
+      (let ((result
+	     (group-like/commutative-operation? 
+	      (ring-like/multiplicative-monoid ring-like))))
+	(set-math-property!
+	 ring-like 'commutative-multiplicative-monoid? result)
+	result)))
 
 ;;; Test if multiplication is distributive with respect to addition
 (define (ring-like/distributive? ring-like)
@@ -115,14 +203,23 @@
 
 ;;; Test if multiplication by 0 annihilates the ring-like
 (define (ring-like/annihilation-by-0 ring-like)
-  (let ((set (ring-like/underlying-set ring-like))
-	(multiply (ring-like/multiplicative-operation ring-like))
-	(zero (ring-like/additive-identity ring-like)))
-    (for-all x set
-	     (and (equal? (multiply zero x)
-			  (multiply x zero))
-		  (equal? (multiply x zero)
-			  zero)))))
+  ;; Check for property if already computed
+  (if (has-math-property? ring-like 'annihilation-by-0?)
+      ;; property set, return value
+      (get-math-property ring-like 'annihilation-by-0?)
+      ;; property not set, check value and return it
+      (let ((set (ring-like/underlying-set ring-like))
+	    (multiply (ring-like/multiplicative-operation ring-like))
+	    (zero (ring-like/additive-identity ring-like)))
+	(let ((result 
+	       (for-all x set
+			(and (equal? (multiply zero x)
+				     (multiply x zero))
+			     (equal? (multiply x zero)
+				     zero)))))
+	  (set-math-property!
+	   ring-like 'annihilation-by-0? result)
+	  result))))  
 
 ;;; Returns additive inverse of element
 (define (ring-like/get-additive-inverse ring-like element)

@@ -12,10 +12,19 @@
 
 (define (is-field? obj)
   (and (is-ring? obj)
-       (not (equal? (ring/additive-identity obj)
-		    (ring/multiplicative-identity obj)))
-       (set/equal? (ring/get-units obj)
-		   (ring/get-nonzero-elements obj))))
+       ;; check if field? property is set
+       (if (has-math-property? obj 'field?)
+	   ;; property set, return its value
+	   (get-math-property obj 'field?)
+	   ;; property not set, check its value and return it
+	   (let ((result
+		  (and (not (equal? (ring/additive-identity obj)
+				    (ring/multiplicative-identity obj)))
+		       (set/equal? (ring/get-units obj)
+				   (ring/get-nonzero-elements obj)))))
+	     (set-math-property! 
+	      obj 'field? result)
+	     result))))
        
 (define (field/underlying-set field)
   (ring-like/underlying-set field))
@@ -29,7 +38,7 @@
 (define (field->set field)
   (ring-like/underlying-set field))
 
-;;; ############################################################################
+;;; ##########################################################################
 ;;; Properties
 
 (define (field/additive-identity field)
