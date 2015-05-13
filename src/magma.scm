@@ -56,3 +56,4 @@
 (test-error (make-magma (make-set 0 1)
 			(lambda (x y) 2)))
 
+

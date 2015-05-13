@@ -4,7 +4,6 @@
     "package"
     "operators"
     "arith"
-    "stormer2"
     "generics"
     ))
 
