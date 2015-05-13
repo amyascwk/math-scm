@@ -252,18 +252,34 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
         
         
         \subsection{Group-like objects}
-            
-            - group-like stuff
-        
+            We constructed a group-like datatype, to represent mathematical objects built from a set and a binary operation. This includes groups, semigroups, monoids etc. In our implementation, we create a hierachy of different types of group-like objects, where a group is a special case of a monoid, a monoid is a type of semigroup and a semigroup is a type of magma. Operations on groups reference operations on monoids, while operations on monoids reference operations on semigroups and similarly for semigroups and magmas. 
+
+
+		\subsubsection{Magmas}
+			A magma consists of a set and a closed binary operation. We construct this by creating a group-like object and checking that the binary operation is closed.
+
+		\subsubsection{Semigroups}
+			A semigroup is a magma where the binary operation is associative. We construct this by creating a group-like object, checking that it is a magma and checking that the operation is associative. We implement operations on semigroups by building on top of the operations for magmas.
+
+		\subsubsection{Monoids}
+			A monoid is a semigroup with an identity element. We construct this by creating a group-like object, checking that it is a semigroup and checking that it has an identity element. We implement operations on monoids by referencing operations on semigroups.
+
+		\subsubsection{Groups}
+			A group is a monoid where each element has an inverse. We construct this by creating a group-like object, checking that it is a monoid and checking that each element is invertible. We implemented specialized tools to work wth groups; this is elaborated on in Section \ref{sectiongroups}.
         
         \subsection{Ring-like objects}
-            
-            - ring-like stuff
+		We constructed a ring-like datatype, to represent mathematical objects built from a set, an additive operation and a multiplicative operation. This includes rings, semirings, domains and fields. 
+
+		\subsubsection{Rings}
+			To construct a ring, we create a ring-like object and check that the ring axioms are satisfied. Namely, we check that the ring-like object is an abelian group under addition, a monoid under multiplication, and that multiplication is distributive with respect to addition. We also implemented basic operations on rings, including finding the units, idempotents and zero divisors of a ring. 
+
+		\subsubsection{Fields}
+           		Fields are nonzero rings where every nonzero element is a unit. We constructed fields by creating a ring and checking that these properties are satisfied. We also implemented basic operations on fields, such as finding the additive and multiplicative inverses of an element in the field. A commonly used example of a field is the finite field of prime order $p$, which we construct by taking $\{0,1,..., p\}$ as the set of elements, together with the operations of addition and multiplication modulo $p$.
         
         
-        \subsection{Hypergraph-like}
-            
-            - hypergraph-like stuff
+        \subsection{Graphs}
+            Apart from abstract algebraic objects, we also construct a datatype to represent graphs, by storing the vertices as a set and the edges as a list of sets, where each set consists of elements from the set of vertices. We implemented basic operations on graphs, including checking if the graph is simple, regular or complete, and finding the degree of an element in the graph. Our implementation also allows us to construct hypergraphs, which are a generalization of graphs such that each edge is an arbitrarily-sized subset of the vertices. Graphs are a special case of hypergraphs, where each edge contains exactly two vertices.
+    
     
     
     %##########################################################################
