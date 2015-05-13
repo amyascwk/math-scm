@@ -372,7 +372,7 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
          #(matrix 2 2 ((((-1/2 . 1)) ((-1/2 . 3))) (((1/2 . 3)) ((-1/2 . 1))))) (1 0))
 \end{verbatim}
 		
-		We implement \texttt{group/isomorphic?} behind the scenes with amb and require's. For performance, amb is constrained to only generate mappings that map elements of the same order to each other (cutting down the search from $10! = 3628800$ to a much more reasonable $1! \cdot 4! \cdot 1! \cdot 4! = 576$ possibilities). Each mapping is then tested for validity over all pairs of elements; if it fails, backtracking happens automatically behind the scenes.
+		We implement \texttt{group/isomorphic?} behind the scenes with amb and require's. For performance, amb is constrained to only generate mappings that map elements of the same order to each other (cutting down the search from $6! = 720$ to a puny $1! \cdot 3! \cdot 2! = 12$ possibilities). Each mapping is then tested for validity over all pairs of elements; if it fails, backtracking happens automatically behind the scenes.
 		
 		This scheme can easily be extended to enumerate all isomorphisms / automorphisms by triggering a backtrack even when a successful candidate is found, and perhaps to find surjective / injective homomorphisms between a group and a subgroup of another group.    
     %##########################################################################
