@@ -435,10 +435,20 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
             This scheme can easily be extended to enumerate all isomorphisms / automorphisms by triggering a backtrack even when a successful candidate is found, and perhaps to find surjective / injective homomorphisms between a group and a subgroup of another group.    
     
     %##########################################################################
-    \section{Code}
+    \section{Code and Sources}
         
         The version of the code at the time of submission can be obtained from the ``6.905" branch of the repository at \texttt{https://github.com/amyascwk/math-scm}. The ``master" branch contains the latest version of the code.
+
+	%%%% Amyas put more stuff here!
         
-    
+        The generic arithmetic architecture used for domain extensions was adapted from PS3, while the amb operator and its associated backtracking schemes were adapted from PS7.
+
+	\section{Further Work}
+	
+	%%%% Amyas put more stuff here!
+	
+	The examples shown here were built with special purpose domain extensions (permutations, matrices and radicals). However, extensive work of this nature already exists in the form of scmutils and other libraries, which our platform could integrate with for more generality without reinventing the wheel (complex numbers, vectors, polynomials, \ldots).
+        
+    We also hope to develop more extensive higher-level abstractions on top of more math objects like rings and graphs in the style of groups, with specialized constructors and isomorphism searchers.
     
 \end{document}
