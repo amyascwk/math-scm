@@ -71,7 +71,7 @@
                 \cline{1-1}
                 \multirow{2}{*}{\textbf{Math Implementation}} & \\
                 & \\
-                \hline
+                \cline{1-1}
                 \multirow{2}{*}{\textbf{Core}} & \multirow{2}{*}{
                     \begin{tabular}{|c|c|c|c|c}
                         \cline{1-4}
@@ -88,17 +88,38 @@
     %##########################################################################
     \section{Core layer}
         
-        
+        The core layer contains the abstraction for the ``math-object" record type that is used to implement the various mathematical structures in the program. It also contains some dependencies on symbolic infrastructure that is used throughout the program to provide flexibility for further extensions. Finally, the core layer also contains the code for miscellaneous infrastructure used throughout the program, like generic comparators or mathematical entities that only need very simple implementations.
         
         \subsection{Math-object}
             
+            The \verb+math-object+ record type is defined using:
+\begin{verbatim}
+(define-record-type math-object
+  (make-math-object structure data properties)
+  math-object?
+  (structure math-object-structure)
+  (data math-object-data)
+  (properties math-object-properties set-math-object-properties!))
+\end{verbatim}
+            It consists of three fields: the \verb+data+ and \verb+properties+ fields contain association lists (alists), while the \verb+structure+ field contains a symbol. The difference between the data and \verb+properties+ alists is that the content of the \verb+data+ alist is supposed to contribute to the identity of the math-object, whereas the \verb+properties+ alist stores auxilliary information about the math-object, and is used to memoize mathematical properties about the math-object that were computed the first time they were queried. The value of the \verb+structure+ field is used to specify how the content of the data alist should be interpreted, and also to help prevent naming conflicts in the event that two different mathematical structures have similarly named components.
             
-            
+            By design choice, the math-object is immutable except for its \verb+properties+ alist, since any changes to the data of the math-object can make its memoized properties incorrect, and some properties are too expensive to recompute very often. Therefore, there are both getter and setter methods for the properties of the math-object, but only getter methods for its data. Examples of the use of math-objects will be mentioned in the discussion about the math implementation layer.
         
         \subsection{Dependencies}
             
+            The main dependencies used in the code are discussed as follows.
             
+            \subsubsection{Generic Operators}
+                
+                Generic operators play an essential part in providing the required flexibility of the program. By dispatching procedures based on the predicates satisfied by the arguments, they allow generic comparators to be used to efficiently sort and store elements of almost any type in a set. They also allow extensions to the methods on mathematical structures, such as allowing a partial extension for infinite sets.
             
+            \subsubsection{Symbolic Arithmetic}
+                
+                With generic operators, it is easy to implement symbolic arithmetic which is often needed for exact computation in mathematics. This opens up the use of radicals, complex numbers, and polynomials as primitive objects to build mathematical structures with.
+            
+            %\subsubsection{Amb}
+                
+                %need to do amb?
         
         \subsection{Domain extensions}
             
@@ -248,7 +269,44 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
         
         \subsection{Sets}
             
-            - sets stuff
+            Sets were the one of the most basic mathematical structures that can easily be built using math-objects. In the program, it was easy to implement explicit sets that store information about its elements in a weighted-balanced tree, which already had methods written specifically with sets in mind. In order to allow elements to be almost anything, there was a need for a generic comparator that works for anything that is allowed in a set. This was done using generic operators to define the \verb+expr<?+ procedure, which dispatches to various type-specific comparators like \verb+<+ for numbers and \verb+symbol<?+ for symbols. Comparison between different types was done with a preloaded type priority order.
+            
+            Generic operators were also used to implement the various set methods like set unions, cardinality calculations, and set membership. This allowed the possibility of a different kind of set implementation to use the same set abstraction. For example, explicit sets were defined partially by the code
+\begin{verbatim}
+;;; Primitive constructor of explicit finite sets
+(define (make-set . element-list)
+  (list->set element-list))
+
+;;; Convert from list of elements
+(define (list->set element-list)
+  (let* ((inclusion-alist
+          (map (lambda (x) (cons x #t))
+               element-list))
+         (element-wt-tree
+          (alist->wt-tree explicit-set-wt-tree-type
+                          inclusion-alist)))
+    (wt-tree->set element-wt-tree)))
+
+;;; Convert from weight-balanced tree of elements
+(define (wt-tree->set element-wt-tree)
+  (make-math-object 'set
+                    (list (list 'element-wt-tree element-wt-tree))
+                    (list (list 'explicit-set? #t)
+                          (list 'finite? #t))))
+\end{verbatim}
+            which stores the implementation type as an \verb+'explicit-set?+ property of the set. Since explicit sets are always finite, it is possible to store the \verb+'finite?+ property as well. On the other hand, a partial implementation of implicit sets might be implemented by code like
+\begin{verbatim}
+;;; The set of integers
+(define set/integers
+  (make-math-object 'set
+                    (list (list 'membership-predicate-name 'integer?))
+                    (list (list 'explicit-set? #f)
+                          (list 'finite? #f))))
+\end{verbatim}
+            which stores data in a different way and thus requires a different procedure for set methods like checking membership, constructing set unions or calculating the number of elements.
+            
+            
+
         
         
         \subsection{Group-like objects}
