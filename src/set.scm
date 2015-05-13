@@ -166,7 +166,7 @@
     ;;Check if 'cardinality property is set
     (if (has-math-property? set 'cardinality)
 	;;property set, so return its value
-	(get-math-property? set 'cardinality)
+	(get-math-property set 'cardinality)
 	;;property not set, so check its value and return it
 	(let ((cardinality (wt-tree/size (set->wt-tree set))))
 	  (set-math-property! set 'cardinality cardinality)
