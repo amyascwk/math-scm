@@ -44,7 +44,7 @@
 
 ;;; Checks whether object is a set that stores its elements explicitly, in a weighted
 ;;; binary tree. Returns #f if unknown.
-(define (set/explicit? obj)
+(define (explicit-set? obj)
   (and (set? obj)
        ;;Check if 'explicit-set? property is set
        (if (has-math-property? obj 'explicit-set?)
@@ -57,7 +57,7 @@
 
 ;;; Convert to weight-balanced tree
 (define (set->wt-tree set)
-  (if (set/explicit? set)
+  (if (explicit-set? set)
       (get-math-datum set 'element-wt-tree)
       (error "Not an explicit set:" set)))
 
@@ -89,7 +89,7 @@
 
 ;;; Checks whether object is a set that stores information about its elements implicitly,
 ;;; as a membership predicate expression. Returns #f if unknown.
-(define (set/implicit? obj)
+(define (implicit-set? obj)
   (and (set? obj)
        ;;Check if 'explicit-set? property is set
        (if (has-math-property? obj 'explicit-set?)
@@ -102,7 +102,7 @@
 
 ;;; Membership predicate of an implicit set
 (define (set/membership-predicate set)
-  (if (set/implicit? set)
+  (if (implicit-set? set)
       (eval (get-math-datum set 'membership-predicate-expression)
 	    (nearest-repl/environment))
       (error "Not an implicit set:" set)))
@@ -133,30 +133,34 @@
 (defhandler set/member?
   (lambda (obj set)
     (wt-tree/member? obj (set->wt-tree set)))
-  any? set/explicit?)
+  any? explicit-set?)
 
 (defhandler set/member?
   (lambda (obj set)
     ((set/membership-predicate set) obj))
-  any? set/implicit?)
+  any? implicit-set?)
 
-;;; Checks whether an object is a finite set. Returns #f if unknown.
-(define (set/finite? obj)
-  (and (set? obj)
-       ;;Check if 'finite? property is set
-       (if (has-math-property? obj 'finite?)
-	   ;;property set, so return its value
-	   (get-math-property obj 'finite?)
-	   ;;property not set, so check its value and return it
-	   (and (set/explicit? obj)
-		(set-math-property! obj 'finite? #t)
-		#t))))
+;;; Checks whether a set is finite. Returns #f if unknown.
+(define (set/finite? set)
+  ;;Check if 'finite? property is set
+  (if (has-math-property? set 'finite?)
+      ;;property set, so return its value
+      (get-math-property set 'finite?)
+      ;;property not set, so check its value and return it
+      (and (explicit-set? set)
+	   (set-math-property! set 'finite? #t)
+	   #t)))
 
-;;; Checks whether an object is an infinite set. Returns #f if unknown.
-(define (set/infinite? obj)
-  (and (set? obj)
-       (has-math-property? obj 'finite?)
-       (not (get-math-property obj 'finite?))))
+;;; Checks whether a set is infinite. Returns #f if unknown.
+(define (set/infinite? set)
+  ;;Check if 'finite? property is set
+  (if (has-math-property? set 'finite?)
+      ;;property set, so return its value
+      (not (get-math-property set 'finite?))
+      ;;property not set, so check its value and return it
+      (and (explicit-set? set)
+	   (set-math-property! set 'finite? #f)
+	   #f)))
 
 ;;; Get cardinality
 (define set/cardinality (make-generic-operator 1 'set/cardinality))
@@ -166,12 +170,12 @@
     ;;Check if 'cardinality property is set
     (if (has-math-property? set 'cardinality)
 	;;property set, so return its value
-	(get-math-property? set 'cardinality)
+	(get-math-property set 'cardinality)
 	;;property not set, so check its value and return it
 	(let ((cardinality (wt-tree/size (set->wt-tree set))))
 	  (set-math-property! set 'cardinality cardinality)
 	  cardinality)))
-  set/explicit?)
+  explicit-set?)
 
 ;;; Check if set is empty
 (define (set/empty? set)
@@ -218,13 +222,13 @@
   (lambda (small-set large-set)
     (for-all x small-set
 	     (set/member x large-set)))
-  set/explicit? set?)
+  explicit-set? set?)
 
 (defhandler set/subset?
   (lambda (small-set large-set)
     (wt-tree/subset? (set->wt-tree small-set)
 		     (set->wt-tree large-set)))
-  set/explicit? set/explicit?)
+  explicit-set? explicit-set?)
 
 ;;; Strict subset test
 (define (set/proper-subset? small-set large-set)
@@ -244,7 +248,7 @@
   (lambda (set1 set2)
     (expr<? (set->list set1)
 	    (set->list set2)))
-  set/explicit? set/explicit?)
+  explicit-set? explicit-set?)
 
 
 ;;; ############################################################################
@@ -266,7 +270,7 @@
   (lambda (large-set predicate)
     (list->set (filter predicate
 		       (set->list large-set))))
-  set/explicit? procedure?)
+  explicit-set? procedure?)
 
 ;;; Axiom of Existence of Empty Set
 (define (set/empty) (make-set))
@@ -288,7 +292,7 @@
     (let ((tree1 (set->wt-tree set1))
 	  (tree2 (set->wt-tree set2)))
       (wt-tree->set (wt-tree/union tree1 tree2))))
-  set/explicit? set/explicit?)
+  explicit-set? explicit-set?)
 
 ;;; Set intersection
 (define set/intersection (make-generic-operator 2 'set/intersection))
@@ -306,20 +310,20 @@
     (set/splice set1
 		(lambda (obj)
 		  (set/member? obj set2))))
-  set/explicit? set?)
+  explicit-set? set?)
 
 (defhandler set/intersection
   (lambda (set1 set2)
     (set/splice set2
 		(lambda (obj)
 		  (set/member? obj set1))))
-  set? set/explicit?)
+  set? explicit-set?)
 
 (defhandler set/intersection
   (lambda (set1 set2)
     (wt-tree->set (wt-tree/intersection (set->wt-tree set1)
 					(set->wt-tree set2))))
-  set/explicit? set/explicit?)
+  explicit-set? explicit-set?)
 
 ;;; Set difference
 (define set/difference (make-generic-operator 2 'set/difference))
@@ -336,7 +340,7 @@
   (lambda (set1 set2)
     (wt-tree->set (wt-tree/difference (set->wt-tree set1)
 				      (set->wt-tree set2))))
-  set/explicit? set/explicit?)
+  explicit-set? explicit-set?)
 
 ;;; Axiom of Existence of Power Set
 ;;; or definition of power set
@@ -366,7 +370,7 @@
 					    new-collected)
 				      (cdr new-remaining))))
 			  (cdr remaining)))))))
-  set/explicit?)
+  explicit-set?)
 
 ;;; Set Cartesian Product
 (define set/cart-pdt (make-generic-operator 2 'set/cartesian-product))
@@ -388,7 +392,7 @@
 			     (map (lambda (y) (list x y))
 				  (set->list set2)))
 			   (set->list set1)))))
-  set/explicit? set/explicit?)
+  explicit-set? explicit-set?)
 
 
 ;;; #############################################################################################

@@ -1,30 +1,34 @@
-;;;; Group
+;;;; ############################################################################################
+;;;; ############################################################################################
+;;;; Group definitions and syntax
 
-;;; ############################################################################
-;;; Datatype methods
+;;; #############################################################################################
+;;; Group datatype methods
+
+;;; Group test
+(define (group? obj)
+  (and (monoid? obj)
+       ;;Check if 'group? property is set
+       (if (has-math-property? obj 'group?)
+	   ;;property set, so return its value
+	   (get-math-property obj 'group?)
+	   ;;property not set, so check its value and return it
+	   (let ((result (group-like/invertible? obj)))
+	     (set-math-property! group-like 'group? result)
+	     result))))
+
+;;; Throw an error if the monoid argument is not a group
+(define (test-group monoid)
+  (if (not (monoid/invertible? monoid))
+      (error "Identity of operation not in underlying set in monoid:" monoid)))
 
 ;;; Primitive constructor
 (define (make-group set operation)
   (let ((monoid (make-monoid set operation)))
-    (group-check monoid)))
+    (test-group monoid)
+    monoid))
 
-(define (group-from-generators generators operation)
-  (let ((monoid (monoid-from-generators generators operation)))
-    (group-check monoid)))
-
-(define (group/cart-pdt group1 group2)
-  (let ((monoid-pdt (monoid/cart-pdt group1 group2)))
-    (group-check monoid-pdt)))
-
-(define (group-check monoid)
-    (if (monoid/invertible? monoid)
-	monoid
-	(error "Not all inverses with respect to operation is in set:" operation set)))
-
-(define (is-group? obj)
-  (and (is-monoid? obj)
-       (monoid/invertible? obj)))
-
+;;; Wrappers for monoid datatype methods
 (define (group/underlying-set group)
   (monoid/underlying-set group))
 (define (group/operation group)
@@ -33,26 +37,46 @@
   (monoid->set group))
 
 
-;;; ############################################################################
+;;; #############################################################################################
+;;; Other constructors
+
+;;; Group cartesian product
+(define (group/cart-pdt group1 group2)
+  (let ((monoid-pdt (monoid/cart-pdt group1 group2)))
+    (test-group monoid-pdt)
+    monoid-pdt))
+
+;;; From generators
+(define (group-from-generators generators operation)
+  (let ((monoid (monoid-from-generators generators operation)))
+    (test-group monoid)
+    monoid))
+
+
+;;; #############################################################################################
 ;;; Properties
 
+;;; Wrappers for monoid properties methods
 (define (group/identity group)
   (monoid/identity group))
 (define (group/inverses-alist group)
   (monoid/inverses-alist group))
 (define (group/order group)
-  (set/cardinality (group/underlying-set group)))
+  (monoid/order group))
 (define (group/order-alist group)
   (monoid/order-alist group))
 (define (group/elements group)
-  (set->list (group->set group)))
-(define (group/is-abelian? group)
-  (group-like/commutative-operation? group))
-(define (is-abelian-group? obj)
-  (and (is-group? obj)
-       (group/is-abelian? obj)))
+  (monoid/elements group))
+(define (group/abelian? group)
+  (monoid/abelian? group))
 
-;;; ############################################################################
+;;; Abelian group test
+(define (abelian-group? obj)
+  (and (group? obj)
+       (group/abelian? obj)))
+
+
+;;; #############################################################################################
 ;;; Special constructors
 
 (define (make-cyclic n)
@@ -77,7 +101,7 @@
 		      (modulo (+ y1 y2) 2))))))
     (make-group elts op)))
 
-;;; ############################################################################
+;;; #############################################################################################
 ;;; Code for finding isomorphisms
 
 (define (flatten inverse-order)

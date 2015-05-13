@@ -72,11 +72,11 @@
 
 ;;; Test if underlying set and additive operation form monoid
 (define (ring-like/additive-monoid? ring-like)
-  (is-monoid? (ring-like/additive-monoid ring-like)))
+  (monoid? (ring-like/additive-monoid ring-like)))
 
 ;;; Test if underlying set and multiplicative operation form monoid
 (define (ring-like/multiplicative-monoid? ring-like)
-  (is-monoid? (ring-like/multiplicative-monoid ring-like)))
+  (monoid? (ring-like/multiplicative-monoid ring-like)))
 
 ;;; Test if underlying additive monoid is commutative
 (define (ring-like/commutative-additive-monoid? ring-like)
@@ -84,7 +84,7 @@
 
 ;;; Test if underlying additive monoid is an abelian group
 (define (ring-like/abelian-additive-monoid? ring-like)
-  (is-abelian-group? (ring-like/additive-monoid ring-like)))
+  (abelian-group? (ring-like/additive-monoid ring-like)))
 
 ;;; Test if underlying multiplicative monoid is commutative
 (define (ring-like/commutative-multiplicative-monoid? ring-like)
