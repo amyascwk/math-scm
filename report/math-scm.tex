@@ -304,14 +304,42 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
                           (list 'finite? #f))))
 \end{verbatim}
             which stores data in a different way and thus requires a different procedure for set methods like checking membership, constructing set unions or calculating the number of elements.
-            
-            
-
-        
         
         \subsection{Group-like objects}
-            We constructed a group-like datatype, to represent mathematical objects built from a set and a binary operation. This includes groups, semigroups, monoids etc. In our implementation, we create a hierachy of different types of group-like objects, where a group is a special case of a monoid, a monoid is a type of semigroup and a semigroup is a type of magma. Operations on groups reference operations on monoids, while operations on monoids reference operations on semigroups and similarly for semigroups and magmas. 
-
+            We constructed a group-like datatype, to represent mathematical objects built from a set and a binary operation. There are no constraints imposed on the set and the operation:
+\begin{verbatim}
+;;; Primitive constructor
+;;; operation must be binary operation between elements of the set
+(define (make-group-like set operation)
+  (if (set? set)
+      (make-math-object 'group-like
+                        (list (list 'underlying-set set)
+                              (list 'operation operation))
+                        '())
+      (error "Not a set:" set)))
+\end{verbatim}
+            Instead, the various interesting properties of group-like objects are written as predicates that check for a memoized value, returning it if there is one, but computing and storing the value otherwise (usually on its first call). For example, the closure property predicate is implemented as
+\begin{verbatim}
+;;; Test closure of operation
+(define (group-like/closed-operation? group-like)
+  ;;Check if closure is satisfied if not already computed
+  (if (has-math-property? group-like 'closed-operation?)
+      ;;property set, so return its value
+      (get-math-property group-like 'closed-operation?)
+      ;;property not set, so check its value and return it
+      (let* ((set (group-like/underlying-set group-like))
+             (operation (group-like/operation group-like))
+             (result
+              ;;in the future, this should be replaced with a function image check
+              (for-all x set
+                       (for-all y set
+                                (set/member? (operation x y) set)))))
+        ;;Set closure property to result
+        (set-math-property! group-like 'closed-operation? result)
+        result)))
+\end{verbatim}
+            
+            The named versions of group-like objects that are interesting in math include groups, semigroups, monoids etc. In our implementation, they can be implemented as a hierachy of abstractions over group-like objects, where a group is a special case of a monoid, a monoid is a type of semigroup and a semigroup is a type of magma. Many operations on groups can simply wrap operations on monoids, which can further wrap operations down the hierarchy. We briefly explain each named group-like type as follows.
 
 		\subsubsection{Magmas}
 			A magma consists of a set and a closed binary operation. We construct this by creating a group-like object and checking that the binary operation is closed.
@@ -323,7 +351,7 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
 			A monoid is a semigroup with an identity element. We construct this by creating a group-like object, checking that it is a semigroup and checking that it has an identity element. We implement operations on monoids by referencing operations on semigroups.
 
 		\subsubsection{Groups}
-			A group is a monoid where each element has an inverse. We construct this by creating a group-like object, checking that it is a monoid and checking that each element is invertible. We implemented specialized tools to work wth groups; this is elaborated on in Section \ref{sectiongroups}.
+			A group is a monoid where each element has an inverse. We construct this by creating a group-like object, checking that it is a monoid and checking that each element is invertible. We implemented specialized tools to work with groups; this is elaborated on in Section \ref{constructors}.
         
         \subsection{Ring-like objects}
 		We constructed a ring-like datatype, to represent mathematical objects built from a set, an additive operation and a multiplicative operation. This includes rings, semirings, domains and fields. 
@@ -342,6 +370,7 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
     
     %##########################################################################
     \section{Specialized Constructors}
+    \label{constructors}
         
         To demonstrate the utility of this framework, we built further higher-order abstractions to better manipulate and construct groups in different settings. This was done specifically in a group context, but this proof-of-concept demonstrates that these constructions are possible for rings and other settings too.
         
