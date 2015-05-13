@@ -2,6 +2,7 @@
 
 %Packages
 \usepackage{amsmath,amssymb} %for math symbols
+\usepackage{enumerate,multirow}
 
 %Margins
 \setlength{\oddsidemargin}{0cm}
@@ -24,40 +25,84 @@
     %##########################################################################
     \section{Introduction}
         
-        - Motivation
-            - Role of computers in math
-                - Computer Algebra Systems (CAS) take some computation load off user
-                - Examples of proofs using computers: 4-color theorem, etc etc
-            - Significance of project
-                - Scheme allows emphasis on ideas rather than programming syntax
-                - Want a flexible system allowing users to make own constructs
-                - Free software and extensible so users can extend easily
-                    - can keep in pace with real world progress in math community
+        The use of computers in mathematical work has increased tremendously from the mechanical calculation aids of the era before the analytical engine, to the current petaFLOPS-scale supercomputers used for the notoriously intensive simulations required in various computational sciences. In these examples, computers serve primarily to take the menial computational load off the users, allowing them to devote time to more productive uses. However, the \emph{role} of computers has also been expanding as well, finding use not just for plain calculations but also in the development of abstract mathematics. There are now computational proof-checkers and even automated theorem provers that attempt to solve sufficiently formalized problems with little human direction. Some of these have been used to generate proofs, for problems like the four-coloring theorem, that are controversially intractible to humans due to their complexity.
         
-        - Potential use cases
-            - Convenience tool for keeping track of abstract mathematical data
-            - Simple scripting language for a CAS backend
-            - Possible basis for proof-assistants, proof-checkers, etc
-            - ??
+        In the ideal case, this trend continues until we develop programs that completely take over all the tedious aspects of mathematical work, leaving only the boundary layer where human creativity is still necessary to extend the body of mathematical knowledge. With this overall goal in mind, we wish to implement a system which has a natural structural interpretation, so humans can interact with it in the same way they think about mathematical ideas in real life, and which is also flexible enough to be extended in pace with the introduction of new mathematical constructs.
+        
+        Our program is an implementation of mathematical constructs written in scheme, which has the advantage of having a simple but flexible syntax. The program consists of constructors and methods with natural analogues to concepts familiar to the mathematical community, built on top of a common infrastructure that is simple enough to be easily used to accommodate new mathematical concepts.
+        
+        Although the intention for the program was primarily to act as the front end for a user to construct mathematical entities, there are potential use cases that it can potentially have if the appropriate infrastructure is implemented. For example, the program on its own can already serve as a simple convenient tool for keeping track of large or complex mathematical entities. With additional code for converting datatypes, the program can become a frontend for an existing computer algebra system (CAS), calling the latter whenever existing methods are applicable, but still providing the flexibility of building custom mathematical structures that are not implemented by the CAS. In a similar way, the program can also serve as a frontend extension to existing proof assistants or checkers, providing the flexibility whenever needed.
     
     
     %##########################################################################
-    \section{Overview}
+    \section{Overview of program structure}
         
-        - Overall structure
-            - written using mit-scheme
-            - Different levels of implementation:
-                - Core
-                - Math implementation
-                - Extensions to base math
+        The program was written as 3 main layers of implementation:
+        \begin{enumerate}[1.]
+            \item The core layer consists of the definition and abstraction for the common record type used to implement generic mathematical entities, as well as the various dependencies of the code.
+            \item The math implementation layer contains the datatype definitions and methods for various basic mathematical structures stored as versions of the common record type.
+            \item The abstract math layer consists of specialized constructors in multiple levels of abstraction that wrap the implementation of basic mathematical structures, in order to provide the methods analogous to actual mathematical concepts. There is no clear demarcation separating this from the math implementation layer.
+        \end{enumerate}
+        
+        \begin{center}
+            \begin{tabular}{|c|c|}
+                \hline
+                \multirow{6}{*}{\textbf{Abstract Math}} & 
+                \multirow{8}{*}{
+                    \vspace{5pt}
+                    \begin{tabular}{|c|c|c|c|c|c}
+                        \cline{3-3}
+                        \multicolumn{2}{c|}{} & \multicolumn{1}{|c|}{Group constructors} & \multicolumn{3}{|c}{} \\
+                        \multicolumn{2}{c|}{} & \multicolumn{1}{|c|}{Group} & \multicolumn{3}{|c}{} \\
+                        \multicolumn{2}{c|}{} & \multicolumn{1}{|c|}{Monoid} & \multicolumn{3}{|c}{} \\
+                        \cline{4-4}
+                        \multicolumn{2}{c|}{} & \multicolumn{1}{|c|}{Semigroup} & \multicolumn{1}{|c|}{Field} & \multicolumn{2}{|c}{} \\
+                        \multicolumn{2}{c|}{} & \multicolumn{1}{|c|}{Magma} & \multicolumn{1}{|c|}{Ring} & \multicolumn{2}{|c}{} \\
+                        \cline{1-5}
+                        Set & Function & Group-like & Ring-like & Graph & \ldots\\
+                        \cline{1-5}
+                    \end{tabular}
+                    \vspace{5pt}
+                    } \\
+                & \\
+                & \\
+                & \\
+                & \\
+                \cline{1-1}
+                \multirow{2}{*}{\textbf{Math Implementation}} & \\
+                & \\
+                \hline
+                \multirow{2}{*}{\textbf{Core}} & \multirow{2}{*}{
+                    \begin{tabular}{|c|c|c|c|c}
+                        \cline{1-4}
+                        Math-object & Generic Operators & Symbolic Arithmetic & Amb & \ldots \\
+                        \cline{1-4}
+                    \end{tabular}
+                } \\
+                & \\
+                \hline
+            \end{tabular}
+        \end{center}
     
     
     %##########################################################################
-    \section{Underlying structure}
+    \section{Core layer}
         
-        \subsection{Adapted infrastructure}
+        
+        
+        \subsection{Math-object}
             
-            As we intend for these abstract math objects to be realized over multiple domains, a priority was to build sufficiently many diverse domains to test these constructions on. Each of these are discussed briefly below.
+            
+            
+        
+        \subsection{Dependencies}
+            
+            
+            
+        
+        \subsection{Domain extensions}
+            
+            As we intend for these abstract math objects to be realized over multiple domains, a priority was to build sufficiently many diverse domains to test these constructions on. Of course, each of these could have been implemented as full math-objects themselves, but simple implementations suffice for their use as examples to write tests on. They are discussed briefly below.
             
             \subsubsection{Permutations}
             \label{permutations}
@@ -195,11 +240,8 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
 
                 
                 This system currently works well for square roots, but we can conceive of a system where each tagged list has another parameter to support $n^{th}$ roots as well. A simple extension to \texttt{simplify} can use $8 = 2^3$ to reduce $\sqrt[3]{56}$ to $2\sqrt[3]{7}$. We chose, however, not to implement such an abstraction as no straightforward analogue to rationalizing the denominator for division exists.
-                                          
-        \subsection{Math-object Datatype}
             
-            - explanation of choice of structure
-    
+        
     
     %##########################################################################
     \section{Math Implementation}
@@ -232,9 +274,9 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
         \subsection{Generated groups}
         \label{generated-groups}
         
-        Instead of constructing a group (or monoid, or semigroup) out of an explicit set and operation, we can rely on the closure axiom and let Scheme generate the set out of a list of generators.
-        
-         Within \texttt{group-from-generators} is an internal recursive helper function that takes a list of elements so far and pairs it still needs to test. It then \texttt{cdr}s down the latter, each time producing an element, testing if it is a member of its list of elements so far. If so, the helper calls itself with the same list of elements and the remaining pairs to test; if not, it adds the newly found element to the list of elements so far, and appends the $2n$ new pairs to test to the remaining pairs to test before calling itself. $\texttt{group-from-generators}$ initializes this with the list of elements and all $n^2$ initial pairs. This operation, as expected, runs in $O(|G|^2)$ time, where $|G|$ is the order of the initially undetermined group. 
+            Instead of constructing a group (or monoid, or semigroup) out of an explicit set and operation, we can rely on the closure axiom and let Scheme generate the set out of a list of generators.
+            
+             Within \texttt{group-from-generators} is an internal recursive helper function that takes a list of elements so far and pairs it still needs to test. It then \texttt{cdr}s down the latter, each time producing an element, testing if it is a member of its list of elements so far. If so, the helper calls itself with the same list of elements and the remaining pairs to test; if not, it adds the newly found element to the list of elements so far, and appends the $2n$ new pairs to test to the remaining pairs to test before calling itself. $\texttt{group-from-generators}$ initializes this with the list of elements and all $n^2$ initial pairs. This operation, as expected, runs in $O(|G|^2)$ time, where $|G|$ is the order of the initially undetermined group. 
          
 \begin{verbatim}
 (define g1 (group-from-generators '(5) (lambda (x y) (modulo (+ x y) 12))))
@@ -248,15 +290,15 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
 ;Value: (0 4 8)
 \end{verbatim}
          
-         It is the user's responsibility to pass this procedure a valid set of generators and an operation; the procedure will not terminate and overflow if no closure can be found over the given set of generators.
+            It is the user's responsibility to pass this procedure a valid set of generators and an operation; the procedure will not terminate and overflow if no closure can be found over the given set of generators.
         
         \subsection{Parametrized groups}
         
-        Certain infinite families of groups occur over and over again, so we built special-purpose constructor wrappers to abstract these groups.
-        
-        \subsubsection{Cyclic groups}
-        
-        A cyclic group of order $n$ may be represented as the elements $\{0 \ldots n-1\}$ armed with the operation $+ \mod n$.
+            Certain infinite families of groups occur over and over again, so we built special-purpose constructor wrappers to abstract these groups.
+            
+            \subsubsection{Cyclic groups}
+            
+                A cyclic group of order $n$ may be represented as the elements $\{0 \ldots n-1\}$ armed with the operation $+ \mod n$.
         
 \begin{verbatim}         
 (define c7 (make-cyclic 7))
@@ -268,11 +310,11 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
 ;Value: 1
 \end{verbatim}
         
-        \subsubsection{Dihedral groups}
+            \subsubsection{Dihedral groups}
         
-        There are many equivalent ways to represent the dihedral group $D_n$ (of size $2n$), but for simplicity our implementation relies on the presentation $<p,q|p^n = q^2 = 1, qpq^{-1} = p^{-1}>$. Elements of $D_n$ are represented as tuples $(x,y)$ where $x \in \{ 0 \ldots n-1\}$ and $y \in \{0, 1\}$, and the operation $\cdot$ is defined as follows:
+                There are many equivalent ways to represent the dihedral group $D_n$ (of size $2n$), but for simplicity our implementation relies on the presentation $<p,q|p^n = q^2 = 1, qpq^{-1} = p^{-1}>$. Elements of $D_n$ are represented as tuples $(x,y)$ where $x \in \{ 0 \ldots n-1\}$ and $y \in \{0, 1\}$, and the operation $\cdot$ is defined as follows:
         
-        $$(x_1,y_1) \cdot (x_2,y_2) = (x_1 + x_2 \cdot (-1)^{y_1} \mod n, y_1 + y_2 \mod 2)$$
+                $$(x_1,y_1) \cdot (x_2,y_2) = (x_1 + x_2 \cdot (-1)^{y_1} \mod n, y_1 + y_2 \mod 2)$$
         
 \begin{verbatim}
 (define d4 (make-dihedral 4))
@@ -288,16 +330,16 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
 ;Value: (3 1)
 \end{verbatim}
         
-        \subsubsection{Permutation groups}
-        
-        Recall that in section \ref{permutations} we have already built up the underlying infrastructure for composing and manipulating permutations. Therefore it is easy to construct $S_n$ as the set of all $n!$ permutations on $\{1\ldots n\}$ with the operation \texttt{compose-permutation}.
+            \subsubsection{Permutation groups}
+                
+                Recall that in section \ref{permutations} we have already built up the underlying infrastructure for composing and manipulating permutations. Therefore it is easy to construct $S_n$ as the set of all $n!$ permutations on $\{1\ldots n\}$ with the operation \texttt{compose-permutation}.
 
 \begin{verbatim}
 (group/elements (make-symmetric 3))
 ;Value: ((0 1 2) (0 2 1) (1 0 2) (1 2 0) (2 0 1) (2 1 0))
 \end{verbatim}        
 
-		The alternating group $A_n$, defined as the index-2 subgroup of $S_n$ consisting of all even permutations, is a bit harder to explicitly construct. We sacrifice computational runtime for simplicity and define it as the closure of all permutations $p_i$ from $2\leq i \leq n-1$, where $p_i$ switches 1 and 2 and switches $i$ and $i+1$ (see section \ref{generated-groups}).
+                The alternating group $A_n$, defined as the index-2 subgroup of $S_n$ consisting of all even permutations, is a bit harder to explicitly construct. We sacrifice computational runtime for simplicity and define it as the closure of all permutations $p_i$ from $2\leq i \leq n-1$, where $p_i$ switches 1 and 2 and switches $i$ and $i+1$ (see section \ref{generated-groups}).
 		
 \begin{verbatim}
 (group/order (make-alternating 4))
@@ -308,8 +350,8 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
 \end{verbatim}
     
     	\subsection{Cartesian products}
-	
-		We implemented \texttt{group/cart-pdt} to take the Cartesian product of two groups; this follows naturally from taking the Cartesian product of the sets and their operations.
+            
+            We implemented \texttt{group/cart-pdt} to take the Cartesian product of two groups; this follows naturally from taking the Cartesian product of the sets and their operations.
 		
 \begin{verbatim}
 (define c2xc3 (group/cart-pdt (make-cyclic 2)
@@ -324,10 +366,10 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
 \end{verbatim}
     
     	\subsection{Constructing isomorphisms}
-	
-		We can say that two finite groups $G_1$ and $G_2$ are isomorphic iff there exists a bijection $\psi$ between them that preserves the group operation, i.e. $\forall g, g' \in G_1$ $\psi(g)\psi(g') = \psi(gg')$. We construct the procedure \texttt{group/isomorphic?} that takes in two groups and constructs an isomorphism between them if possible, and returning false if not.
-		
-		A naive algorithm would check all $n!$ possible bijections, but our implementation does better by taking into account additional structure within the group. A utility procedure, $\texttt{group/order-alist}$ computes the order of each element (the minimum power needed to raise the element to to get back the identity). $\texttt{invert-alist}$ flips around the keys and values of the alist and \texttt{alist-key-count} collects the number of elements with a particular order, which we can treat as a kind of signature.
+            
+            We can say that two finite groups $G_1$ and $G_2$ are isomorphic iff there exists a bijection $\psi$ between them that preserves the group operation, i.e. $\forall g, g' \in G_1$ $\psi(g)\psi(g') = \psi(gg')$. We construct the procedure \texttt{group/isomorphic?} that takes in two groups and constructs an isomorphism between them if possible, and returning false if not.
+            
+            A naive algorithm would check all $n!$ possible bijections, but our implementation does better by taking into account additional structure within the group. A utility procedure, $\texttt{group/order-alist}$ computes the order of each element (the minimum power needed to raise the element to to get back the identity). $\texttt{invert-alist}$ flips around the keys and values of the alist and \texttt{alist-key-count} collects the number of elements with a particular order, which we can treat as a kind of signature.
 		
 \begin{verbatim}
 (group/order-alist c6)
@@ -340,7 +382,7 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
 ;Value: ((1 1) (2 1) (3 2) (6 2))
 \end{verbatim}
 		
-		For instance, in this case we know that $C_{6}$ and $D_3$ are not isomorphic because they have different number of elements of a given order.
+            For instance, in this case we know that $C_{6}$ and $D_3$ are not isomorphic because they have different number of elements of a given order.
 
 \begin{verbatim}
 (alist-key-count (group/order-alist d3))
@@ -350,7 +392,7 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
 ;Value: #f
 \end{verbatim}
 
-		We can, however, build a group isomorphic to $D_3$ out of 2D matrices that correspond to the symmetries of an equilateral triangle. Here we use the root-list abstraction for radicals developed in section \ref{rootlists}.
+            We can, however, build a group isomorphic to $D_3$ out of 2D matrices that correspond to the symmetries of an equilateral triangle. Here we use the root-list abstraction for radicals developed in section \ref{rootlists}.
 		
 \begin{verbatim}
 (define g (group-from-generators
@@ -372,13 +414,15 @@ $\frac{\sqrt{2} + \sqrt{3}}{2 + \sqrt{2} - \sqrt{3}} = \frac{1}{23} + \frac{14}{
          #(matrix 2 2 ((((-1/2 . 1)) ((-1/2 . 3))) (((1/2 . 3)) ((-1/2 . 1))))) (1 0))
 \end{verbatim}
 		
-		We implement \texttt{group/isomorphic?} behind the scenes with amb and require's. For performance, amb is constrained to only generate mappings that map elements of the same order to each other (cutting down the search from $6! = 720$ to a puny $1! \cdot 3! \cdot 2! = 12$ possibilities). Each mapping is then tested for validity over all pairs of elements; if it fails, backtracking happens automatically behind the scenes.
+            We implement \texttt{group/isomorphic?} behind the scenes with amb and require's. For performance, amb is constrained to only generate mappings that map elements of the same order to each other (cutting down the search from $6! = 720$ to a puny $1! \cdot 3! \cdot 2! = 12$ possibilities). Each mapping is then tested for validity over all pairs of elements; if it fails, backtracking happens automatically behind the scenes.
 		
-		This scheme can easily be extended to enumerate all isomorphisms / automorphisms by triggering a backtrack even when a successful candidate is found, and perhaps to find surjective / injective homomorphisms between a group and a subgroup of another group.    
+            This scheme can easily be extended to enumerate all isomorphisms / automorphisms by triggering a backtrack even when a successful candidate is found, and perhaps to find surjective / injective homomorphisms between a group and a subgroup of another group.    
+    
     %##########################################################################
     \section{Code}
         
-        The latest version of the code can be obtained from \texttt{https://github.com/amyascwk/math-scm}.
+        The version of the code at the time of submission can be obtained from the ``6.905" branch of the repository at \texttt{https://github.com/amyascwk/math-scm}. The ``master" branch contains the latest version of the code.
         
+    
     
 \end{document}
