@@ -1,6 +1,25 @@
+;;; Copyright 2015 Amyas Chew, Lynn Chua, Yongquan Lu
+;;; 
+;;; This file is part of math-scm.
+;;; 
+;;; math-scm is free software: you can redistribute it and/or modify
+;;; it under the terms of the GNU General Public License as published by
+;;; the Free Software Foundation, either version 3 of the License, or
+;;; (at your option) any later version.
+;;; 
+;;; math-scm is distributed in the hope that it will be useful,
+;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;; GNU General Public License for more details.
+;;; 
+;;; You should have received a copy of the GNU General Public License
+;;; along with math-scm.  If not, see <http://www.gnu.org/licenses/>.
+
+;;;; ############################################################################################
+;;;; ############################################################################################
 ;;;; Graph (finite, unweighted, undirected)
 
-;;; ##########################################################################
+;;; #############################################################################################
 ;;; Datatype mthods
 
 ;;; Primitive constructor
@@ -49,7 +68,7 @@
       (error "Not a graph:" graph)))
 
       
-;;; ##########################################################################
+;;; #############################################################################################
 ;;; Properties
 
 ;;; Get order, or number of vertices
@@ -187,7 +206,7 @@
 		    (- (graph/order graph) 1)))))
   (get-math-property graph 'complete))
 
-;;; ##########################################################################
+;;; #############################################################################################
 ;;; Tests
 
 (let ((triangle (make-graph (make-set 0 1 2)

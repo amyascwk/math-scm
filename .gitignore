@@ -1,0 +1,8 @@
+src/
+!src/*.scm
+src/arith/
+!src/arith/*.scm
+
+report/
+!report/math-scm.tex
+!report/math-scm.pdf

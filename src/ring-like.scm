@@ -1,7 +1,26 @@
+;;; Copyright 2015 Amyas Chew, Lynn Chua, Yongquan Lu
+;;; 
+;;; This file is part of math-scm.
+;;; 
+;;; math-scm is free software: you can redistribute it and/or modify
+;;; it under the terms of the GNU General Public License as published by
+;;; the Free Software Foundation, either version 3 of the License, or
+;;; (at your option) any later version.
+;;; 
+;;; math-scm is distributed in the hope that it will be useful,
+;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;; GNU General Public License for more details.
+;;; 
+;;; You should have received a copy of the GNU General Public License
+;;; along with math-scm.  If not, see <http://www.gnu.org/licenses/>.
+
+;;;; ############################################################################################
+;;;; ############################################################################################
 ;;;; Definitions and syntax of structures built from a set, an
 ;;;; additive operation and a multiplicative operation.
 
-;;; ##########################################################################
+;;; #############################################################################################
 ;;; Datatype methods
 
 ;;; Primitive constructor
@@ -43,7 +62,7 @@
 (define (ring-like->set ring-like)
   (ring-like/underlying-set ring-like))
 
-;;; ##########################################################################
+;;; #############################################################################################
 ;;; Properties
 
 ;;; Get order
